@@ -104,7 +104,7 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
 
     var regexIndex = 0;
 
-    var combined = processRegexs(regexs, true);
+    var combined = processRegexs(regexs, false);
 
     var groupNames: string[] = [];
 
@@ -118,22 +118,22 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
     
     return new CombinedResult(combined, groupNames, groupNameToIndex);
 
-    function processRegexs(regexs: NestedRegexs, root: boolean): string {
+    function processRegexs(regexs: NestedRegexs, upperOr: boolean): string {
         var name: string;
         var regexArray: NestedRegexArray;
-        var separator: string;
+        var or: boolean;
         var capture: boolean;
         var limit: string;
 
         if (regexs instanceof Array) {
             regexArray = regexs;
-            separator = '';
+            or = false;
             capture = false;
             limit = '';
         } else {
             name = (<NestedRegexOptions>regexs).name;
             regexArray = (<NestedRegexOptions>regexs).regexs;
-            separator = (<NestedRegexOptions>regexs).or ? '|' : '';
+            or = (<NestedRegexOptions>regexs).or;
             capture = !!name || (<NestedRegexOptions>regexs).capture;
             limit = (<NestedRegexOptions>regexs).limit || '';
 
@@ -155,14 +155,14 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
                 if (regex instanceof RegExp) {
                     return processPartialRegex(regex);
                 } else {
-                    return processRegexs(<NestedRegexs>regex, false);
+                    return processRegexs(<NestedRegexs>regex, or);
                 }
             })
-            .join(separator);
+            .join(or ? '|' : '');
         
         combined = capture ?
             `(${combined})` :
-            limit || (!root && regexArray.length > 1) ?
+            limit || (upperOr && regexArray.length > 1) ?
                 `(?:${combined})` : combined;
         
         return combined + limit;

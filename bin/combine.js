@@ -62,7 +62,7 @@ function combine(regexs) {
     var groupCount = 0;
     var groupNameToIndex = {};
     var regexIndex = 0;
-    var combined = processRegexs(regexs, true);
+    var combined = processRegexs(regexs, false);
     var groupNames = [];
     for (var i = 0; i < groupCount; i++) {
         groupNames.push('g' + (i + 1));
@@ -72,22 +72,22 @@ function combine(regexs) {
         groupNames[groupNameToIndex[name_1] - 1] = name_1.replace(/-([a-z])/ig, function (m, g1) { return g1.toUpperCase(); });
     }
     return new CombinedResult(combined, groupNames, groupNameToIndex);
-    function processRegexs(regexs, root) {
+    function processRegexs(regexs, upperOr) {
         var name;
         var regexArray;
-        var separator;
+        var or;
         var capture;
         var limit;
         if (regexs instanceof Array) {
             regexArray = regexs;
-            separator = '';
+            or = false;
             capture = false;
             limit = '';
         }
         else {
             name = regexs.name;
             regexArray = regexs.regexs;
-            separator = regexs.or ? '|' : '';
+            or = regexs.or;
             capture = !!name || regexs.capture;
             limit = regexs.limit || '';
             if (!/^(?:[?+*]|\{\d+(?:,\d*)?\})?$/.test(limit)) {
@@ -106,13 +106,13 @@ function combine(regexs) {
                 return processPartialRegex(regex);
             }
             else {
-                return processRegexs(regex, false);
+                return processRegexs(regex, or);
             }
         })
-            .join(separator);
+            .join(or ? '|' : '');
         combined = capture ?
             "(" + combined + ")" :
-            limit || (!root && regexArray.length > 1) ?
+            limit || (upperOr && regexArray.length > 1) ?
                 "(?:" + combined + ")" : combined;
         return combined + limit;
     }
