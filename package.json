@@ -1,0 +1,16 @@
+{
+  "name": "regex-tools",
+  "version": "0.1.0",
+  "description": "",
+  "main": "bin/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vilic/regex-tools"
+  },
+  "author": "vilicvane",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vilic/regex-tools/issues"
+  },
+  "homepage": "https://github.com/vilic/regex-tools"
+}

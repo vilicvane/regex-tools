@@ -1,0 +1,6 @@
+.vs/
+
+/obj/
+
+npm-debug.log
+*.*proj.user
