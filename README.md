@@ -128,7 +128,7 @@ type NestedRegexs = NestedRegexArray|NestedRegexOptions;
 
 ## Tips
 
-When updating group array aliases, the index start at either 0 or 1, depending on your code.
+When updating group array aliases, the index starts at either 0 or 1, depending on your code.
 
 You may also use `require('regex-tools').combine()` for more flexible usage, please check out source code (as it's typed) for more information.
 
