@@ -42,7 +42,7 @@ var slashEscapeSequence = [
 
 var lineContinuation = /\\(?:\r?\n|\r(?!\n)|[\u2028\u2029])/;
 
-var unescapedStringChar = /(?:(?!($quote)|[\\\r\n\u2028\u2029])[\s\S])/;
+var unescapedStringChar = /(?!($quote)|[\\\r\n\u2028\u2029])[\s\S]/;
 
 var optionalStringChars = {
     regexs: [
