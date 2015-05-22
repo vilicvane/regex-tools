@@ -8,6 +8,7 @@
 var Path = require('path');
 var FS = require('fs');
 var combine_1 = require('./combine');
+exports.combine = combine_1.default;
 var regexLiteralRegex = /(\/(?:[^\r\n\u2028\u2029*/\[\\]|\\[^\r\n\u2028\u2029]|\[(?:[^\r\n\u2028\u2029\]\\]|\\[^\r\n\u2028\u2029])*\])(?:[^\r\n\u2028\u2029/\[\\]|\\[^\r\n\u2028\u2029]|\[(?:[^\r\n\u2028\u2029\]\\]|\\[^\r\n\u2028\u2029])*\])*\/[gimy]{0,4})/;
 var paramsRegex = /(\((?:([\w$][\w\d$]*)(?:\s*:\s*string)?)?[^)]*\))/;
 var groupsRegex = /\s*(var|let)\s+([\w$][\w\d$]*)\s*=\s*($groupName:[\w$][\w\d$]*)\s*\[\s*(\d+)\s*\]\s*;(?:\s*(?:var|let)\s+[\w$][\w\d$]*\s*=\s*($groupName)\s*\[\s*\d+\s*\]\s*;)*/;
@@ -37,13 +38,13 @@ function processRxFile(path) {
         var result;
         switch (operation) {
             case 'combine':
-                result = combine_1.default(regexs);
+                result = exports.combine(regexs);
                 break;
             default:
                 return;
         }
         var matcherCommentRegex = new RegExp("([ \t]*)(/\\*\\s*/\\$" + name + "/\\s*\\*/\\s*)");
-        var matcherRegex = eval(combine_1.default([
+        var matcherRegex = eval(exports.combine([
             matcherCommentRegex,
             {
                 regexs: [regexLiteralRegex, paramsRegex, groupsRegex],

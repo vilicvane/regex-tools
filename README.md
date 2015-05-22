@@ -1,6 +1,6 @@
 ﻿# Regular Expression Tools
 
-I use regular expression to do a lot of things, and managing a long regular expression could be painful.
+I use regular expressions to do a lot of things, and managing a long regular expression could be painful.
 So I write this simple tool to manage long and complex regular expressions such as regular expressions of lex parser.
 
 ### Install
@@ -32,7 +32,7 @@ exports.options = {
 
 ### Source File
 
-Create a `target.js` and mark related code with `/* /$test/ */` ('$' follows the name you configured in .rx file).
+Create a `target.js` and mark related code with `/* /$test/ */` (`$` follows the name you configured in .rx file).
 
 ```typescript
 var testRegex = /* /$test/ */ /./;
@@ -47,7 +47,7 @@ var text = groups[0];
 });
 ```
 
-### A Basic Task (Using gulp here)
+### A Basic Task
 
 Create a task and run it.
 
@@ -66,10 +66,10 @@ Gulp.task('update-regex', function () {
 });
 ```
 
-After that, it target.js should look like:
+After that, `target.js` should look like:
 
 ```javascript
-var testRegex = /* /$test/ */ /<(?:\w+\d*)>/;
+var testRegex = /* /$test/ */ /<(?:\w+\d*)>/g;
 
 var groups = testRegex.exec('<abc123>');
 
@@ -86,7 +86,7 @@ Problem solved! You may checkout demo for a relatively more complex example.
 
 ## API References
 
-A .rx file is actually an node module that exports options. `module.options` could be either `RxOptions` or `RxOptions[]`.
+A .rx file is actually a node module that exports options. `module.options` could be either `RxOptions` or `RxOptions[]`.
 
 And here's related type declarations:
 
@@ -129,6 +129,8 @@ type NestedRegexs = NestedRegexArray|NestedRegexOptions;
 ## Tips
 
 When updating group array aliases, the index start at either 0 or 1, depending on your code.
+
+You may also use `require('regex-tools').combine()` for more flexible usage, please check out source code (as it's typed) for more information.
 
 # License
 
