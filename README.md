@@ -86,7 +86,7 @@ Problem solved! You may checkout demo for a relatively more complex example.
 
 ## API References
 
-A .rx file is actually a node module that exports options. `module.options` could be either `RxOptions` or `RxOptions[]`.
+A .rx file is actually a node module that exports options. `exports.options` could be either `RxOptions` or `RxOptions[]`.
 
 And here's related type declarations:
 
