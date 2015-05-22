@@ -104,7 +104,7 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
 
     var regexIndex = 0;
 
-    var combined = processRegexs(regexs, false);
+    var combined = processRegexs(regexs);
 
     var groupNames: string[] = [];
 
@@ -118,7 +118,7 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
     
     return new CombinedResult(combined, groupNames, groupNameToIndex);
 
-    function processRegexs(regexs: NestedRegexs, upperOr: boolean): string {
+    function processRegexs(regexs: NestedRegexs): string {
         var name: string;
         var regexArray: NestedRegexArray;
         var or: boolean;
@@ -153,16 +153,16 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
         var combined = regexArray
             .map(regex => {
                 if (regex instanceof RegExp) {
-                    return processPartialRegex(regex);
+                    return processPartialRegex(regex, or);
                 } else {
-                    return processRegexs(<NestedRegexs>regex, or);
+                    return processRegexs(<NestedRegexs>regex);
                 }
             })
             .join(or ? '|' : '');
         
         combined = capture ?
             `(${combined})` :
-            limit || (upperOr && regexArray.length > 1) ?
+            limit || (or && regexArray.length > 1) ?
                 `(?:${combined})` : combined;
         
         return combined + limit;
@@ -171,7 +171,7 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
     /**
      * divide and conquer
      */
-    function processPartialRegex(regex: RegExp): string {
+    function processPartialRegex(regex: RegExp, upperOr: boolean): string {
         regexIndex++;
 
         var regexStr = regex.source;
@@ -295,6 +295,6 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
 
         groupCount += partialGroupCount;
 
-        return hasOrOutside ? `(?:${partialRegexStr})` : partialRegexStr;
+        return !upperOr && hasOrOutside ? `(?:${partialRegexStr})` : partialRegexStr;
     }
 }

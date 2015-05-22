@@ -43,7 +43,7 @@ function processRxFile(path) {
             default:
                 return;
         }
-        var matcherCommentRegex = new RegExp("([ \t]*)(/\\*\\s*/\\$" + name + "/\\s*\\*/\\s*)");
+        var matcherCommentRegex = new RegExp("([ \\t]*)(/\\*\\s*/\\$" + name + "/\\s*\\*/\\s*)");
         var matcherRegex = eval(exports.combine([
             matcherCommentRegex,
             {

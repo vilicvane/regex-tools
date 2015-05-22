@@ -87,7 +87,7 @@ export function processRxFile(path: string): void {
                 return;
         }
 
-        var matcherCommentRegex = new RegExp(`([ \t]*)(/\\*\\s*/\\$${name}/\\s*\\*/\\s*)`);
+        var matcherCommentRegex = new RegExp(`([ \\t]*)(/\\*\\s*/\\$${name}/\\s*\\*/\\s*)`);
 
         var matcherRegex =
             <RegExp>eval(combine([
@@ -100,7 +100,7 @@ export function processRxFile(path: string): void {
                 global: true
             }));
 
-        var updatedText = text.replace(matcherRegex, (match: string, indent: string, prefix: string, literal: string, params: string, firstParamName: string, groupDeclarationsKeyword: string, firstGroupName: string, groupArrayName: string, firstGroupIndex: string) => {
+        var updatedText = text.replace(matcherRegex, function(match: string, indent: string, prefix: string, literal: string, params: string, firstParamName: string, groupDeclarationsKeyword: string, firstGroupName: string, groupArrayName: string, firstGroupIndex: string) {
             if (literal) {
                 return `${indent}${prefix}${result.getRegexLiteral({
                     global,

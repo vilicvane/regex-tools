@@ -62,7 +62,7 @@ function combine(regexs) {
     var groupCount = 0;
     var groupNameToIndex = {};
     var regexIndex = 0;
-    var combined = processRegexs(regexs, false);
+    var combined = processRegexs(regexs);
     var groupNames = [];
     for (var i = 0; i < groupCount; i++) {
         groupNames.push('g' + (i + 1));
@@ -72,7 +72,7 @@ function combine(regexs) {
         groupNames[groupNameToIndex[name_1] - 1] = name_1.replace(/-([a-z])/ig, function (m, g1) { return g1.toUpperCase(); });
     }
     return new CombinedResult(combined, groupNames, groupNameToIndex);
-    function processRegexs(regexs, upperOr) {
+    function processRegexs(regexs) {
         var name;
         var regexArray;
         var or;
@@ -103,23 +103,23 @@ function combine(regexs) {
         var combined = regexArray
             .map(function (regex) {
             if (regex instanceof RegExp) {
-                return processPartialRegex(regex);
+                return processPartialRegex(regex, or);
             }
             else {
-                return processRegexs(regex, or);
+                return processRegexs(regex);
             }
         })
             .join(or ? '|' : '');
         combined = capture ?
             "(" + combined + ")" :
-            limit || (upperOr && regexArray.length > 1) ?
+            limit || (or && regexArray.length > 1) ?
                 "(?:" + combined + ")" : combined;
         return combined + limit;
     }
     /**
      * divide and conquer
      */
-    function processPartialRegex(regex) {
+    function processPartialRegex(regex, upperOr) {
         regexIndex++;
         var regexStr = regex.source;
         // syntax test
@@ -215,7 +215,7 @@ function combine(regexs) {
             return match;
         });
         groupCount += partialGroupCount;
-        return hasOrOutside ? "(?:" + partialRegexStr + ")" : partialRegexStr;
+        return !upperOr && hasOrOutside ? "(?:" + partialRegexStr + ")" : partialRegexStr;
     }
 }
 exports.default = combine;
