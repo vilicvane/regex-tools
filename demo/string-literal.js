@@ -1,1 +1,1 @@
-﻿var stringLiteralRegex = /* /$stringLiteral/ */ /(["'])(?:(?!\1|[\\\r\n\u2028\u2029])[\s\S]|(?:\\(?:(?:['"\\bfnrtv]|[^'"\\bfnrtv\dxu\r\n\u2028\u2029])|0(?!\d)|x[\da-fA-F]{2}|u[\da-fA-F]{4}))|\\(?:\r?\n|\r(?!\n)|[\u2028\u2029]))*\1/g;
+﻿var stringLiteralRegex = /* /$stringLiteral/ */ /./;
