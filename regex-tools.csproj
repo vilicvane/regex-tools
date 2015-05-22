@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="demo\index.js" />
+    <Content Include="demo\string-literal.js" />
     <Content Include="demo\tag.js" />
     <Content Include="src\tsd.json" />
   </ItemGroup>
@@ -67,6 +68,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="demo\tag.rx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="demo\string-literal.rx" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">

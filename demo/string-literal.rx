@@ -1,0 +1,69 @@
+﻿/**
+ * This is a sample of a regular expression that matches string literal (ES5).
+ * by VILIC VANE
+ */
+
+var quote = /($quote:["'])/;
+var matchQuote = /($quote)/;
+
+var lineTerminator = /[\r\n\u2028\u2029]/;
+
+var lineTerminatorSequence = /\r?\n|\r(?!\n)|[\u2028\u2029]/;
+
+var singleEscapeChar = /['"\\bfnrtv]/;
+var escapeChar = /['"\\bfnrtv\dxu]/;
+var nonEscapeChar = /[^'"\\bfnrtv\dxu\r\n\u2028\u2029]/;
+
+var hexEscapeSequence = /x[\da-fA-F]{2}/;
+var unicodeEscapeSequence = /u[\da-fA-F]{4}/;
+
+var zeroNotFollowingByDegit = /0(?!\d)/;
+
+var charEscapeSequence = {
+    regexs: [
+        singleEscapeChar,
+        nonEscapeChar
+    ],
+    or: true
+};
+
+var slashEscapeSequence = [
+    /\\/, 
+    {
+        regexs: [
+            charEscapeSequence,
+            zeroNotFollowingByDegit,
+            hexEscapeSequence,
+            unicodeEscapeSequence
+        ],
+        or: true
+    }
+];
+
+var lineContinuation = /\\(?:\r?\n|\r(?!\n)|[\u2028\u2029])/;
+
+var unescapedStringChar = /(?:(?!($quote)|[\\\r\n\u2028\u2029])[\s\S])/;
+
+var optionalStringChars = {
+    regexs: [
+        unescapedStringChar,
+        slashEscapeSequence,
+        lineContinuation
+    ],
+    or: true,
+    limit: '*'
+};
+
+var stringLiteral = [
+    quote,
+    optionalStringChars,
+    matchQuote
+];
+
+exports.options = {
+    name: 'stringLiteral',
+    operation: 'combine',
+    target: 'string-literal.js',
+    global: true,
+    regexs: stringLiteral
+};
