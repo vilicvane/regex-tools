@@ -32,7 +32,7 @@ exports.options = {
 
 ### Source File
 
-Create a `target.js` and mark related code with `/* /$test/ */` (`$` follows the name you configured in .rx file).
+Create a `target.js` and mark related code with `/* /$test/ */` (`$` followed by the name you configured in .rx file).
 
 ```typescript
 var testRegex = /* /$test/ */ /./;
