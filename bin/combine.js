@@ -6,7 +6,7 @@
  * MIT License
  */
 var hop = Object.prototype.hasOwnProperty;
-var groupRegex = /\(\$(\w[\w\d]*(?:-[\w\d]+)*)(?:(:)(?!\?)|\))|(\(\?)|(\()|(\))|(\|)|(\[)|(\])|\\(\d)|\\.|./g;
+var groupRegex = /\(\$(\w[\w\d]*(?:-[\w\d]+)*)(?:(:)(?!\?)|\)(?=(\d)?))|(\(\?)|(\()|(\))|(\|)|(\[)|(\])|\\(\d+)|\\.|./g;
 var CombinedResult = (function () {
     function CombinedResult(combined, groupNames, groupNameToIndex) {
         this.combined = combined;
@@ -62,7 +62,7 @@ function combine(regexs) {
     var groupCount = 0;
     var groupNameToIndex = {};
     var regexIndex = 0;
-    var combined = processRegexs(regexs);
+    var combined = processRegexs(regexs, true);
     var groupNames = [];
     for (var i = 0; i < groupCount; i++) {
         groupNames.push('g' + (i + 1));
@@ -72,7 +72,7 @@ function combine(regexs) {
         groupNames[groupNameToIndex[name_1] - 1] = name_1.replace(/-([a-z])/ig, function (m, g1) { return g1.toUpperCase(); });
     }
     return new CombinedResult(combined, groupNames, groupNameToIndex);
-    function processRegexs(regexs) {
+    function processRegexs(regexs, upperOr) {
         var name;
         var regexArray;
         var or;
@@ -106,13 +106,13 @@ function combine(regexs) {
                 return processPartialRegex(regex, or);
             }
             else {
-                return processRegexs(regex);
+                return processRegexs(regex, or);
             }
         })
             .join(or ? '|' : '');
         combined = capture ?
             "(" + combined + ")" :
-            limit || (or && regexArray.length > 1) ?
+            limit || (!upperOr && or && regexArray.length > 1) ?
                 "(?:" + combined + ")" : combined;
         return combined + limit;
     }
@@ -136,7 +136,7 @@ function combine(regexs) {
         var bracketDepth = 0;
         // whether has | outside a group
         var hasOrOutside = false;
-        var partialRegexStr = regexStr.replace(groupRegex, function (match, groupName, groupNameColon, braWithQ, bra, ket, or, sBra, sKet, brNumber) {
+        var partialRegexStr = regexStr.replace(groupRegex, function (match, groupName, groupNameColon, digitFollowsBR, braWithQ, bra, ket, or, sBra, sKet, brNumber) {
             if (groupName) {
                 if (sBraOpen) {
                     throw new Error("Group name can not be in a characer class in regex #" + regexIndex);
@@ -154,12 +154,7 @@ function combine(regexs) {
                 }
                 else if (hop.call(groupNameToIndex, groupName)) {
                     var index = groupNameToIndex[groupName];
-                    if (index < 10) {
-                        return '\\' + index;
-                    }
-                    else {
-                        throw new Error("Back reference index (" + groupName + ":" + index + ") in regex #" + regexIndex + " exceeds limit");
-                    }
+                    return digitFollowsBR ? "(?:\\" + index + ")" : "\\" + index;
                 }
                 else {
                     throw new Error("Undefined group name \"" + groupName + "\" in regex #" + regexIndex);
@@ -205,12 +200,7 @@ function combine(regexs) {
             if (brNumber) {
                 var index = Number(brNumber);
                 index += groupCount;
-                if (index < 10) {
-                    return '\\' + index;
-                }
-                else {
-                    throw new Error("Back reference index (" + brNumber + "->" + index + ") in regex #" + regexIndex + " exceeds limit");
-                }
+                return "\\" + index;
             }
             return match;
         });

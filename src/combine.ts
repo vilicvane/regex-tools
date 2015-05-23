@@ -25,7 +25,7 @@ export interface NestedRegexArray
 
 export type NestedRegexs = NestedRegexArray|NestedRegexOptions;
 
-var groupRegex = /\(\$(\w[\w\d]*(?:-[\w\d]+)*)(?:(:)(?!\?)|\))|(\(\?)|(\()|(\))|(\|)|(\[)|(\])|\\(\d)|\\.|./g;
+var groupRegex = /\(\$(\w[\w\d]*(?:-[\w\d]+)*)(?:(:)(?!\?)|\)(?=(\d)?))|(\(\?)|(\()|(\))|(\|)|(\[)|(\])|\\(\d+)|\\.|./g;
 
 export class CombinedResult {
     constructor(
@@ -104,7 +104,7 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
 
     var regexIndex = 0;
 
-    var combined = processRegexs(regexs);
+    var combined = processRegexs(regexs, true);
 
     var groupNames: string[] = [];
 
@@ -118,7 +118,7 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
     
     return new CombinedResult(combined, groupNames, groupNameToIndex);
 
-    function processRegexs(regexs: NestedRegexs): string {
+    function processRegexs(regexs: NestedRegexs, upperOr: boolean): string {
         var name: string;
         var regexArray: NestedRegexArray;
         var or: boolean;
@@ -155,14 +155,14 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
                 if (regex instanceof RegExp) {
                     return processPartialRegex(regex, or);
                 } else {
-                    return processRegexs(<NestedRegexs>regex);
+                    return processRegexs(<NestedRegexs>regex, or);
                 }
             })
             .join(or ? '|' : '');
         
         combined = capture ?
             `(${combined})` :
-            limit || (or && regexArray.length > 1) ?
+            limit || (!upperOr && or && regexArray.length > 1) ?
                 `(?:${combined})` : combined;
         
         return combined + limit;
@@ -197,6 +197,7 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
                 match: string,
                 groupName: string,
                 groupNameColon: string,
+                digitFollowsBR: string,
                 braWithQ: string,
                 bra: string,
                 ket: string,
@@ -224,12 +225,7 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
                         return '(';
                     } else if (hop.call(groupNameToIndex, groupName)) {
                         var index = groupNameToIndex[groupName];
-
-                        if (index < 10) {
-                            return '\\' + index;
-                        } else {
-                            throw new Error(`Back reference index (${groupName}:${index}) in regex #${regexIndex} exceeds limit`);
-                        }
+                        return digitFollowsBR ? `(?:\\${index})` : `\\${index}`;
                     } else {
                         throw new Error(`Undefined group name "${groupName}" in regex #${regexIndex}`);
                     }
@@ -280,14 +276,8 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
 
                 if (brNumber) {
                     var index = Number(brNumber);
-
                     index += groupCount;
-
-                    if (index < 10) {
-                        return '\\' + index;
-                    } else {
-                        throw new Error(`Back reference index (${brNumber}->${index}) in regex #${regexIndex} exceeds limit`);
-                    }
+                    return `\\${index}`;
                 }
 
                 return match;

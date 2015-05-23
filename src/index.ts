@@ -36,16 +36,18 @@ var regexLiteralRegex = /(\/(?:[^\r\n\u2028\u2029*/\[\\]|\\[^\r\n\u2028\u2029]|\
 var paramsRegex = /(\((?:([\w$][\w\d$]*)(?:\s*:\s*string)?)?[^)]*\))/;
 var groupsRegex = /\s*(var|let)\s+([\w$][\w\d$]*)\s*=\s*($groupName:[\w$][\w\d$]*)\s*\[\s*(\d+)\s*\]\s*;(?:\s*(?:var|let)\s+[\w$][\w\d$]*\s*=\s*($groupName)\s*\[\s*\d+\s*\]\s*;)*/;
 
-export function processRxFile(path: string): void {
+export function processRxFile(path: string, skipWrite = false): string|string[] {
     path = Path.resolve(path);
     var dir = Path.dirname(path);
 
     var rxModule: RxModule = require(path);
 
     var rxOptions = rxModule.options;
-    var optionGroups = rxOptions instanceof Array ? rxOptions : [<RxOptions>rxOptions];
+    var isOptionsArray = rxOptions instanceof Array;
+    var optionGroups = isOptionsArray ? <RxOptions[]>rxOptions : [<RxOptions>rxOptions];
 
     var cacheMap: Dictionary<OutputCache> = {};
+    var targets: string[] = [];
 
     optionGroups.forEach(options => {
         var {
@@ -59,6 +61,7 @@ export function processRxFile(path: string): void {
         } = options;
 
         target = Path.resolve(dir, target);
+        targets.push(target);
 
         var cache = cacheMap[target];
 
@@ -129,11 +132,18 @@ export function processRxFile(path: string): void {
             cache.text = updatedText;
         }
     });
+    
+    if (!skipWrite) {
+        for (let path of Object.keys(cacheMap)) {
+            let cache = cacheMap[path];
 
-    for (let path of Object.keys(cacheMap)) {
-        let cache = cacheMap[path];
-        if (cache.text != cache.original) {
-            FS.writeFileSync(path, cache.text);
+            if (cache.text != cache.original) {
+                FS.writeFileSync(path, cache.text);
+            }
         }
     }
+
+    var updatedTexts = targets.map(target => cacheMap[target].text);
+
+    return isOptionsArray ? updatedTexts : updatedTexts[0];
 }
