@@ -4,7 +4,7 @@
   "description": "",
   "main": "bin/index.js",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha"
+    "test": "./node_modules/.bin/mocha"
   },
   "repository": {
     "type": "git",
@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/vilic/regex-tools",
   "devDependencies": {
-    "chai": "^2.3.0"
+    "chai": "^2.3.0",
+    "mocha": "^2.2.5"
   }
 }
