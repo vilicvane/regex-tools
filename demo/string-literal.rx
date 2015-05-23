@@ -51,7 +51,7 @@ var optionalStringChars = {
         lineContinuation
     ],
     or: true,
-    limit: '*'
+    repeat: '*'
 };
 
 var stringLiteral = [

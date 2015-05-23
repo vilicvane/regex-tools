@@ -73,6 +73,12 @@
   <ItemGroup>
     <Content Include="demo\string-literal.rx" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include=".travis.yml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="package.json" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <TypeScriptOutDir>bin</TypeScriptOutDir>

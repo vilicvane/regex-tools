@@ -24,7 +24,7 @@ var attribute = [
                 or: true
             }
         ],
-        limit: '?'
+        repeat: '?'
     }
 ];
 
@@ -38,7 +38,7 @@ var tag = [
             spaces,
             attribute
         ],
-        limit: '*'
+        repeat: '*'
     },
     optionalSpaces,
     tagClose

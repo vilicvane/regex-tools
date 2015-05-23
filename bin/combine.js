@@ -77,21 +77,21 @@ function combine(regexs) {
         var regexArray;
         var or;
         var capture;
-        var limit;
+        var repeat;
         if (regexs instanceof Array) {
             regexArray = regexs;
             or = false;
             capture = false;
-            limit = '';
+            repeat = '';
         }
         else {
             name = regexs.name;
             regexArray = regexs.regexs;
             or = regexs.or;
             capture = !!name || regexs.capture;
-            limit = regexs.limit || '';
-            if (!/^(?:[?+*]|\{\d+(?:,\d*)?\})?$/.test(limit)) {
-                throw new Error("Invalid limit \"" + limit + "\"");
+            repeat = regexs.repeat || '';
+            if (!/^(?:\?|[+*]\??|\{\d+(?:,\d*)?\})?$/.test(repeat)) {
+                throw new Error("Invalid repeat option \"" + repeat + "\"");
             }
         }
         if (capture) {
@@ -112,9 +112,9 @@ function combine(regexs) {
             .join(or ? '|' : '');
         combined = capture ?
             "(" + combined + ")" :
-            limit || (!upperOr && or && regexArray.length > 1) ?
+            repeat || (!upperOr && or && regexArray.length > 1) ?
                 "(?:" + combined + ")" : combined;
-        return combined + limit;
+        return combined + repeat;
     }
     /**
      * divide and conquer

@@ -2,7 +2,7 @@ export interface NestedRegexOptions {
     name?: string;
     or?: boolean;
     capture?: boolean;
-    limit?: string;
+    repeat?: string;
     regexs: NestedRegexArray;
 }
 export interface NestedRegexArray extends Array<RegExp | NestedRegexArray | NestedRegexOptions> {

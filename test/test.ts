@@ -16,18 +16,24 @@ var caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
         "should not wrap root |": [
             {
                 regexs: {
-                    regexs: [/abc/, /def/],
+                    regexs: [
+                        /abc/,
+                        /def/
+                    ],
                     or: true
                 },
                 expect: /abc|def/
             }
         ],
-        "should wrap wrap combined regex that has | if its upper has no |": [
+        "should wrap combined regex that has | if its upper has no |": [
             {
                 regexs: [
                     /biu/,
                     {
-                        regexs: [/abc/, /def/],
+                        regexs: [
+                            /abc/,
+                            /def/
+                        ],
                         or: true
                     },
                     /pia/
@@ -35,17 +41,53 @@ var caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
                 expect: /biu(?:abc|def)pia/
             }
         ],
-        "should not wrap combined regex that has | even if its upper has |": [
+        "should not wrap combined regex that has | if its upper has |": [
+            {
+                regexs: {
+                    regexs: [
+                        /biu/,
+                        {
+                            regexs: [
+                                /abc/,
+                                /def/
+                            ],
+                            or: true
+                        },
+                        /pia/
+                    ],
+                    or: true
+                },
+                expect: /biu|abc|def|pia/
+            }
+        ],
+        "should not wrap combined regex that has | if it's already been wrapped": [
             {
                 regexs: [
                     /biu/,
                     {
-                        regexs: [/abc/, /def/],
+                        regexs: [
+                            /abc/,
+                            /def/
+                        ],
+                        or: true,
+                        capture: true
+                    },
+                    /pia/
+                ],
+                expect: /biu(abc|def)pia/
+            },
+            {
+                regexs: [
+                    /biu/,
+                    {
+                        regexs: [
+                            /(abc|def)/
+                        ],
                         or: true
                     },
                     /pia/
                 ],
-                expect: /biu(?:abc|def)pia/
+                expect: /biu(abc|def)pia/
             }
         ],
         "should wrap or not wrap combined regex that has | based on conditions": [
@@ -89,6 +131,58 @@ var caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
                     /pia/
                 ],
                 expect: /biu(?:abc|def)pia/
+            }
+        ],
+        "should wrap regex that has repeat pattern": [
+            {
+                regexs: {
+                    regexs: [
+                        /biu/,
+                        /pia/
+                    ],
+                    repeat: '+'
+                },
+                expect: /(?:biupia)+/
+            }
+        ]
+    },
+    "group capturing": {
+        "should capture group that has name option": [
+            {
+                regexs: {
+                    name: 'abc',
+                    regexs: [
+                        /abc/,
+                        /def/,
+                        {
+                            regexs: [
+                                /ghi/,
+                                /jkl/
+                            ],
+                            or: true
+                        }
+                    ]
+                },
+                expect: /(abcdef(?:ghi|jkl))/
+            }
+        ],
+        "should capture group that has capture option true": [
+            {
+                regexs: {
+                    regexs: [
+                        /abc/,
+                        /def/,
+                        {
+                            regexs: [
+                                /ghi/,
+                                /jkl/
+                            ],
+                            or: true
+                        }
+                    ],
+                    capture: true
+                },
+                expect: /(abcdef(?:ghi|jkl))/
             }
         ]
     },

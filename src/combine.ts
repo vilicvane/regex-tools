@@ -12,7 +12,7 @@ export interface NestedRegexOptions {
     name?: string;
     or?: boolean;
     capture?: boolean;
-    limit?: string;
+    repeat?: string;
     regexs: NestedRegexArray;
 }
 
@@ -119,22 +119,22 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
         var regexArray: NestedRegexArray;
         var or: boolean;
         var capture: boolean;
-        var limit: string;
+        var repeat: string;
 
         if (regexs instanceof Array) {
             regexArray = regexs;
             or = false;
             capture = false;
-            limit = '';
+            repeat = '';
         } else {
             name = (<NestedRegexOptions>regexs).name;
             regexArray = (<NestedRegexOptions>regexs).regexs;
             or = (<NestedRegexOptions>regexs).or;
             capture = !!name || (<NestedRegexOptions>regexs).capture;
-            limit = (<NestedRegexOptions>regexs).limit || '';
+            repeat = (<NestedRegexOptions>regexs).repeat || '';
 
-            if (!/^(?:[?+*]|\{\d+(?:,\d*)?\})?$/.test(limit)) {
-                throw new Error(`Invalid limit "${limit}"`);
+            if (!/^(?:\?|[+*]\??|\{\d+(?:,\d*)?\})?$/.test(repeat)) {
+                throw new Error(`Invalid repeat option "${repeat}"`);
             }
         }
 
@@ -158,10 +158,10 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
         
         combined = capture ?
             `(${combined})` :
-            limit || (!upperOr && or && regexArray.length > 1) ?
+            repeat || (!upperOr && or && regexArray.length > 1) ?
                 `(?:${combined})` : combined;
         
-        return combined + limit;
+        return combined + repeat;
     }
 
     /**
