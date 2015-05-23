@@ -12,5 +12,8 @@
   "bugs": {
     "url": "https://github.com/vilic/regex-tools/issues"
   },
-  "homepage": "https://github.com/vilic/regex-tools"
+  "homepage": "https://github.com/vilic/regex-tools",
+  "devDependencies": {
+    "chai": "^2.3.0"
+  }
 }

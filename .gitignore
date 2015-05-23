@@ -1,6 +1,7 @@
 .vs/
 
 /obj/
+node_modules/
 
 npm-debug.log
 *.*proj.user

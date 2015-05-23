@@ -47,21 +47,22 @@
   <ItemGroup>
     <TypeScriptCompile Include="src\combine.ts" />
     <TypeScriptCompile Include="src\index.ts" />
-    <TypeScriptCompile Include="src\typings\lang.d.ts" />
-    <TypeScriptCompile Include="src\typings\node\node.d.ts" />
-    <TypeScriptCompile Include="src\typings\tsd.d.ts" />
+    <TypeScriptCompile Include="typings\lang.d.ts" />
+    <TypeScriptCompile Include="typings\node\node.d.ts" />
+    <TypeScriptCompile Include="typings\tsd.d.ts" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
+    <Folder Include="test\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="demo\index.js" />
     <Content Include="demo\string-literal.js" />
     <Content Include="demo\tag.js" />
-    <Content Include="src\tsd.json" />
+    <Content Include="tsd.json" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="README.md" />

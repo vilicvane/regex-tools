@@ -8,10 +8,9 @@
 
 import * as Path from 'path';
 import * as FS from 'fs';
+import combine, { CombinedResult, NestedRegexs } from './combine';
 
-import rxCombine, { CombinedResult, NestedRegexs } from './combine';
-
-export var combine = rxCombine;
+export { default as combine, NestedRegexs } from './combine';
 
 interface RxOptions {
     name: string;

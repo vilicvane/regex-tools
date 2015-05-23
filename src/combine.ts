@@ -8,10 +8,6 @@
 
 var hop = Object.prototype.hasOwnProperty;
 
-export interface Dictionary<T> {
-    [key: string]: T;
-}
-
 export interface NestedRegexOptions {
     name?: string;
     or?: boolean;
