@@ -69,7 +69,7 @@ Gulp.task('update-regex', function () {
 After that, `target.js` should look like:
 
 ```javascript
-var testRegex = /* /$test/ */ /<(?:\w+\d*)>/g;
+var testRegex = /* /$test/ */ /<(\w+)\d*>/g;
 
 var groups = testRegex.exec('<abc123>');
 
@@ -82,7 +82,7 @@ var term = groups[1];
 });
 ```
 
-Problem solved! You may checkout demo for a relatively more complex example.
+Problem solved! You may checkout demo for relatively more complex examples.
 
 ## API References
 
@@ -115,7 +115,7 @@ interface NestedRegexOptions {
     or?: boolean;
 	/** whether to capture, default to false if `name` is not provided, otherwise true. */
     capture?: boolean;
-	/** ?, *, +, {1}, {1,}, {1,2} */
+	/** ?, *, +, *?, +?, {1}, {1,}, {1,2} */
     repeat?: string;
     regexs: NestedRegexArray;
 }
