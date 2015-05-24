@@ -117,7 +117,8 @@ interface NestedRegexOptions {
     capture?: boolean;
 	/** ?, *, +, *?, +?, {1}, {1,}, {1,2} */
     repeat?: string;
-    regexs: NestedRegexArray;
+    regex?: RegExp;
+    regexs?: NestedRegexArray;
 }
 
 interface NestedRegexArray

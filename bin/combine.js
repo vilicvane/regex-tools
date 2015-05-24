@@ -44,7 +44,7 @@ var CombinedResult = (function () {
             lines.push((useLet ? 'let' : 'var') + " " + matchName + " = " + arrayName + "[0];");
         }
         lines.push.apply(lines, this.groupNames.map(function (name, index) { return ((useLet ? 'let' : 'var') + " " + name + " = " + arrayName + "[" + (index + 1) + "];"); }));
-        return indent + lines.join(newLine + indent);
+        return lines.join(newLine + indent);
     };
     CombinedResult.prototype.getParametersSnippet = function (_a) {
         var _b = _a.typed, typed = _b === void 0 ? false : _b, _c = _a.matchName, matchName = _c === void 0 ? 'match' : _c;
@@ -87,6 +87,12 @@ function combine(regexs) {
         else {
             name = regexs.name;
             regexArray = regexs.regexs;
+            if (!regexArray) {
+                regexArray = [regexs.regex];
+                if (!regexArray) {
+                    throw new Error('At least one of `regexs` or `regex` needs to be provided');
+                }
+            }
             or = regexs.or;
             capture = !!name || regexs.capture;
             repeat = regexs.repeat || '';

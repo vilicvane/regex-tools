@@ -13,7 +13,8 @@ export interface NestedRegexOptions {
     or?: boolean;
     capture?: boolean;
     repeat?: string;
-    regexs: NestedRegexArray;
+    regex?: RegExp;
+    regexs?: NestedRegexArray;
 }
 
 export interface NestedRegexArray
@@ -79,7 +80,7 @@ export class CombinedResult {
 
         lines.push(...this.groupNames.map((name, index) => `${useLet ? 'let' : 'var'} ${name} = ${arrayName}[${index + 1}];`));
 
-        return indent + lines.join(newLine + indent);
+        return lines.join(newLine + indent);
     }
 
     getParametersSnippet({
@@ -129,6 +130,15 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
         } else {
             name = (<NestedRegexOptions>regexs).name;
             regexArray = (<NestedRegexOptions>regexs).regexs;
+
+            if (!regexArray) {
+                regexArray = [(<NestedRegexOptions>regexs).regex];
+
+                if (!regexArray) {
+                    throw new Error('At least one of `regexs` or `regex` needs to be provided');
+                }
+            }
+
             or = (<NestedRegexOptions>regexs).or;
             capture = !!name || (<NestedRegexOptions>regexs).capture;
             repeat = (<NestedRegexOptions>regexs).repeat || '';
