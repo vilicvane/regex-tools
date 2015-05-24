@@ -164,6 +164,24 @@ var caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
                     ]
                 },
                 expect: /(abcdef(?:ghi|jkl))/
+            },
+            {
+                regexs: [
+                    {
+                        name: 'abc',
+                        regex: /def/
+                    }
+                ],
+                expect: /(abc)/
+            },
+            {
+                regexs: [
+                    {
+                        regex: /def/,
+                        capture: true
+                    }
+                ],
+                expect: /(abc)/
             }
         ],
         "should capture group that has capture option true": [

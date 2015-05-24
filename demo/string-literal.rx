@@ -17,7 +17,7 @@ var nonEscapeChar = /[^'"\\bfnrtv\dxu\r\n\u2028\u2029]/;
 var hexEscapeSequence = /x[\da-fA-F]{2}/;
 var unicodeEscapeSequence = /u[\da-fA-F]{4}/;
 
-var zeroNotFollowingByDegit = /0(?!\d)/;
+var zeroNotFollowedByDegit = /0(?!\d)/;
 
 var charEscapeSequence = {
     regexs: [
@@ -32,7 +32,7 @@ var slashEscapeSequence = [
     {
         regexs: [
             charEscapeSequence,
-            zeroNotFollowingByDegit,
+            zeroNotFollowedByDegit,
             hexEscapeSequence,
             unicodeEscapeSequence
         ],
