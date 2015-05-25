@@ -6,12 +6,13 @@
  * MIT License
  */
 var hop = Object.prototype.hasOwnProperty;
-var groupRegex = /\(\$(\w[\w\d]*(?:-[\w\d]+)*)(?:(:)(?!\?)|\)(?=(\d)?))|(\(\?)|(\()|(\))|(\|)|(\[)|(\])|\\(\d+)|\\.|./g;
+var groupRegex = /\(\$(~?[\w$][\w\d$]*)(?:(:)(?!\?)|\)(?=(\d)?))|(\(\?)|(\()|(\))|(\|)|(\[)|(\])|\\(\d+)|\\.|./g;
 var CombinedResult = (function () {
-    function CombinedResult(combined, groupNames, groupNameToIndex) {
+    function CombinedResult(combined, groupNames, groupNameToIndex, groupNameHideMap) {
         this.combined = combined;
         this.groupNames = groupNames;
         this.groupNameToIndex = groupNameToIndex;
+        this.groupNameHideMap = groupNameHideMap;
     }
     CombinedResult.prototype.getStringLiteral = function (singleQuote) {
         if (singleQuote === void 0) { singleQuote = false; }
@@ -43,8 +44,14 @@ var CombinedResult = (function () {
         if (matchName) {
             lines.push((useLet ? 'let' : 'var') + " " + matchName + " = " + arrayName + "[0];");
         }
-        lines.push.apply(lines, this.groupNames.map(function (name, index) { return ((useLet ? 'let' : 'var') + " " + name + " = " + arrayName + "[" + (index + 1) + "];"); }));
-        return lines.join(newLine + indent);
+        var hideMap = this.groupNameHideMap;
+        lines.push.apply(lines, this.groupNames.map(function (name, index) {
+            return hop.call(hideMap, name) ? '' :
+                (useLet ? 'let' : 'var') + " " + name + " = " + arrayName + "[" + (index + 1) + "];";
+        }));
+        return lines
+            .filter(function (line) { return !!line; })
+            .join(newLine + indent);
     };
     CombinedResult.prototype.getParametersSnippet = function (_a) {
         var _b = _a.typed, typed = _b === void 0 ? false : _b, _c = _a.matchName, matchName = _c === void 0 ? 'match' : _c;
@@ -61,6 +68,7 @@ exports.CombinedResult = CombinedResult;
 function combine(regexs) {
     var groupCount = 0;
     var groupNameToIndex = {};
+    var groupNameHideMap = {};
     var regexIndex = 0;
     var combined = processRegexs(regexs, true);
     var groupNames = [];
@@ -71,7 +79,7 @@ function combine(regexs) {
         var name_1 = _a[_i];
         groupNames[groupNameToIndex[name_1] - 1] = name_1.replace(/-([a-z])/ig, function (m, g1) { return g1.toUpperCase(); });
     }
-    return new CombinedResult(combined, groupNames, groupNameToIndex);
+    return new CombinedResult(combined, groupNames, groupNameToIndex, groupNameHideMap);
     function processRegexs(regexs, upperOr) {
         var name;
         var regexArray;
@@ -86,12 +94,12 @@ function combine(regexs) {
         }
         else {
             name = regexs.name;
-            regexArray = regexs.regexs;
-            if (!regexArray) {
-                regexArray = [regexs.regex];
-                if (!regexArray) {
-                    throw new Error('At least one of `regexs` or `regex` needs to be provided');
-                }
+            var optionRegexs = regexs.regexs;
+            if (optionRegexs instanceof Array) {
+                regexArray = optionRegexs;
+            }
+            else {
+                regexArray = [optionRegexs];
             }
             or = regexs.or;
             capture = !!name || regexs.capture;
@@ -99,6 +107,9 @@ function combine(regexs) {
             if (!/^(?:\?|[+*]\??|\{\d+(?:,\d*)?\})?$/.test(repeat)) {
                 throw new Error("Invalid repeat option \"" + repeat + "\"");
             }
+        }
+        if (!regexArray.length) {
+            return '(?:)';
         }
         if (capture) {
             groupCount++;
@@ -145,13 +156,21 @@ function combine(regexs) {
         var partialRegexStr = regexStr.replace(groupRegex, function (match, groupName, groupNameColon, digitFollowsBR, braWithQ, bra, ket, or, sBra, sKet, brNumber) {
             if (groupName) {
                 if (sBraOpen) {
-                    throw new Error("Group name can not be in a characer class in regex #" + regexIndex);
+                    //throw new Error(`Group name can not be in a character class "[...]" in regex #${regexIndex}`);
+                    return match;
                 }
                 if (groupNameColon) {
+                    var toHide = groupName.charAt(0) == '~';
+                    if (toHide) {
+                        groupName = groupName.substr(1);
+                    }
                     var originalGroupName = groupName;
                     var suffixNumber = 2;
                     while (hop.call(groupNameToIndex, groupName)) {
                         groupName = originalGroupName + suffixNumber++;
+                    }
+                    if (toHide) {
+                        groupNameHideMap[groupName] = null;
                     }
                     bracketDepth++;
                     partialGroupCount++;

@@ -3,8 +3,7 @@ export interface NestedRegexOptions {
     or?: boolean;
     capture?: boolean;
     repeat?: string;
-    regex?: RegExp;
-    regexs?: NestedRegexArray;
+    regexs?: RegExp | NestedRegexArray | NestedRegexOptions;
 }
 export interface NestedRegexArray extends Array<RegExp | NestedRegexArray | NestedRegexOptions> {
 }
@@ -13,7 +12,8 @@ export declare class CombinedResult {
     combined: string;
     groupNames: string[];
     groupNameToIndex: Dictionary<number>;
-    constructor(combined: string, groupNames: string[], groupNameToIndex: Dictionary<number>);
+    groupNameHideMap: Dictionary<void>;
+    constructor(combined: string, groupNames: string[], groupNameToIndex: Dictionary<number>, groupNameHideMap: Dictionary<void>);
     getStringLiteral(singleQuote?: boolean): string;
     getRegexLiteral({global, ignoreCase, multiline}?: any): string;
     getGroupAliasDeclarationsSnippet({arrayName, useLet, newLine, indent, matchName}?: any): string;

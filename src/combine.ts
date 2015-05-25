@@ -13,8 +13,7 @@ export interface NestedRegexOptions {
     or?: boolean;
     capture?: boolean;
     repeat?: string;
-    regex?: RegExp;
-    regexs?: NestedRegexArray;
+    regexs?: RegExp|NestedRegexArray|NestedRegexOptions;
 }
 
 export interface NestedRegexArray
@@ -22,13 +21,14 @@ export interface NestedRegexArray
 
 export type NestedRegexs = NestedRegexArray|NestedRegexOptions;
 
-var groupRegex = /\(\$(\w[\w\d]*(?:-[\w\d]+)*)(?:(:)(?!\?)|\)(?=(\d)?))|(\(\?)|(\()|(\))|(\|)|(\[)|(\])|\\(\d+)|\\.|./g;
+var groupRegex = /\(\$(~?[\w$][\w\d$]*)(?:(:)(?!\?)|\)(?=(\d)?))|(\(\?)|(\()|(\))|(\|)|(\[)|(\])|\\(\d+)|\\.|./g;
 
 export class CombinedResult {
     constructor(
         public combined: string,
         public groupNames: string[],
-        public groupNameToIndex: Dictionary<number>
+        public groupNameToIndex: Dictionary<number>,
+        public groupNameHideMap: Dictionary<void>
     ) { }
 
     getStringLiteral(singleQuote = false): string {
@@ -78,9 +78,16 @@ export class CombinedResult {
             lines.push(`${useLet ? 'let' : 'var'} ${matchName} = ${arrayName}[0];`);
         }
 
-        lines.push(...this.groupNames.map((name, index) => `${useLet ? 'let' : 'var'} ${name} = ${arrayName}[${index + 1}];`));
+        var hideMap = this.groupNameHideMap;
+        
+        lines.push(...this.groupNames.map((name, index) =>
+            hop.call(hideMap, name) ? '' :
+                `${useLet ? 'let' : 'var'} ${name} = ${arrayName}[${index + 1}];`
+        ));
 
-        return lines.join(newLine + indent);
+        return lines
+            .filter(line => !!line)
+            .join(newLine + indent);
     }
 
     getParametersSnippet({
@@ -98,6 +105,7 @@ export class CombinedResult {
 export default function combine(regexs: NestedRegexs): CombinedResult {
     var groupCount = 0;
     var groupNameToIndex: Dictionary<number> = {};
+    var groupNameHideMap: Dictionary<void> = {};
 
     var regexIndex = 0;
 
@@ -113,7 +121,7 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
         groupNames[groupNameToIndex[name] - 1] = name.replace(/-([a-z])/ig, (m: string, g1: string) => g1.toUpperCase());
     }
     
-    return new CombinedResult(combined, groupNames, groupNameToIndex);
+    return new CombinedResult(combined, groupNames, groupNameToIndex, groupNameHideMap);
 
     function processRegexs(regexs: NestedRegexs, upperOr: boolean): string {
         var name: string;
@@ -129,16 +137,14 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
             repeat = '';
         } else {
             name = (<NestedRegexOptions>regexs).name;
-            regexArray = (<NestedRegexOptions>regexs).regexs;
+            let optionRegexs = (<NestedRegexOptions>regexs).regexs;
 
-            if (!regexArray) {
-                regexArray = [(<NestedRegexOptions>regexs).regex];
-
-                if (!regexArray) {
-                    throw new Error('At least one of `regexs` or `regex` needs to be provided');
-                }
+            if (optionRegexs instanceof Array) {
+                regexArray = optionRegexs;
+            } else {
+                regexArray = [optionRegexs];
             }
-
+            
             or = (<NestedRegexOptions>regexs).or;
             capture = !!name || (<NestedRegexOptions>regexs).capture;
             repeat = (<NestedRegexOptions>regexs).repeat || '';
@@ -146,6 +152,10 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
             if (!/^(?:\?|[+*]\??|\{\d+(?:,\d*)?\})?$/.test(repeat)) {
                 throw new Error(`Invalid repeat option "${repeat}"`);
             }
+        }
+
+        if (!regexArray.length) {
+            return '(?:)';
         }
 
         if (capture) {
@@ -214,10 +224,17 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
             ) => {
                 if (groupName) {
                     if (sBraOpen) {
-                        throw new Error(`Group name can not be in a characer class in regex #${regexIndex}`);
+                        //throw new Error(`Group name can not be in a character class "[...]" in regex #${regexIndex}`);
+                        return match;
                     }
 
                     if (groupNameColon) {
+                        let toHide = groupName.charAt(0) == '~';
+
+                        if (toHide) {
+                            groupName = groupName.substr(1);
+                        }
+
                         let originalGroupName = groupName;
                         let suffixNumber = 2;
 
@@ -225,6 +242,10 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
                             groupName = originalGroupName + suffixNumber++;
                         }
                         
+                        if (toHide) {
+                            groupNameHideMap[groupName] = null;
+                        }
+
                         bracketDepth++;
                         partialGroupCount++;
                         groupNameToIndex[groupName] = groupCount + partialGroupCount;

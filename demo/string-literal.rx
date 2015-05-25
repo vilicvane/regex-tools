@@ -3,7 +3,7 @@
  * by VILIC VANE
  */
 
-var quote = /($quote:["'])/;
+var quote = /($~quote:["'])/;
 var matchQuote = /($quote)/;
 
 var lineTerminator = /[\r\n\u2028\u2029]/;
