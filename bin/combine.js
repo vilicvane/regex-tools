@@ -38,21 +38,6 @@ var CombinedResult = (function () {
         }
         return literal;
     };
-    CombinedResult.prototype.getGroupAliasDeclarationsSnippet = function (_a) {
-        var _b = _a === void 0 ? {} : _a, _c = _b.arrayName, arrayName = _c === void 0 ? 'groups' : _c, _d = _b.useLet, useLet = _d === void 0 ? true : _d, _e = _b.newLine, newLine = _e === void 0 ? '\n' : _e, _f = _b.indent, indent = _f === void 0 ? '' : _f, _g = _b.matchName, matchName = _g === void 0 ? '' : _g;
-        var lines = [];
-        if (matchName) {
-            lines.push((useLet ? 'let' : 'var') + " " + matchName + " = " + arrayName + "[0];");
-        }
-        var hideMap = this.groupNameHideMap;
-        lines.push.apply(lines, this.groupNames.map(function (name, index) {
-            return hop.call(hideMap, name) ? '' :
-                (useLet ? 'let' : 'var') + " " + name + " = " + arrayName + "[" + (index + 1) + "];";
-        }));
-        return lines
-            .filter(function (line) { return !!line; })
-            .join(newLine + indent);
-    };
     CombinedResult.prototype.getParametersSnippet = function (_a) {
         var _b = _a.typed, typed = _b === void 0 ? false : _b, _c = _a.matchName, matchName = _c === void 0 ? 'match' : _c;
         if (typed) {
@@ -61,6 +46,41 @@ var CombinedResult = (function () {
         else {
             return this.groupNames.length ? "(" + matchName + ", " + this.groupNames.join(', ') + ")" : "(" + matchName + ")";
         }
+    };
+    CombinedResult.prototype.getGroupAliasDeclarationsSnippet = function (_a) {
+        var _b = _a === void 0 ? {} : _a, _c = _b.arrayName, arrayName = _c === void 0 ? 'groups' : _c, _d = _b.useLet, useLet = _d === void 0 ? true : _d, _e = _b.newLine, newLine = _e === void 0 ? '\n' : _e, _f = _b.lineIndent, lineIndent = _f === void 0 ? '' : _f, _g = _b.matchName, matchName = _g === void 0 ? '' : _g;
+        var lines = [];
+        if (matchName) {
+            lines.push((useLet ? 'let' : 'var') + " " + matchName + " = " + arrayName + "[0];");
+        }
+        var hideMap = this.groupNameHideMap;
+        this.groupNames.forEach(function (name, index) {
+            if (!hop.call(hideMap, name)) {
+                lines.push((useLet ? 'let' : 'var') + " " + name + " = " + arrayName + "[" + (index + 1) + "];");
+            }
+        });
+        return lines.join(newLine + lineIndent);
+    };
+    CombinedResult.prototype.getEnumDeclaration = function (_a) {
+        var _b = _a === void 0 ? {} : _a, _c = _b.useConst, useConst = _c === void 0 ? false : _c, _d = _b.name, name = _d === void 0 ? 'ExecGroup' : _d, _e = _b.newLine, newLine = _e === void 0 ? '\n' : _e, _f = _b.lineIndent, lineIndent = _f === void 0 ? '' : _f, _g = _b.indent, indent = _g === void 0 ? '    ' : _g;
+        var lines = [];
+        var hideMap = this.groupNameHideMap;
+        var skipped = true; // skipped 0 as it starts from 1.
+        this.groupNames.forEach(function (name, index) {
+            if (hop.call(hideMap, name)) {
+                skipped = true;
+            }
+            else if (skipped) {
+                skipped = false;
+                lines.push(name + " = " + (index + 1));
+            }
+            else {
+                lines.push("" + name);
+            }
+        });
+        return (((useConst ? 'const ' : '') + "enum " + name + " {" + newLine) +
+            ("" + (lineIndent + indent) + lines.join(',' + newLine + lineIndent + indent) + newLine) +
+            (lineIndent + "}"));
     };
     return CombinedResult;
 })();

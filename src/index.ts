@@ -31,9 +31,15 @@ interface OutputCache {
     text: string;
 }
 
+interface TextStyle {
+    indent: string;
+    newLine: string;
+}
+
 var regexLiteralRegex = /(\/(?:[^\r\n\u2028\u2029*/\[\\]|\\[^\r\n\u2028\u2029]|\[(?:[^\r\n\u2028\u2029\]\\]|\\[^\r\n\u2028\u2029])*\])(?:[^\r\n\u2028\u2029/\[\\]|\\[^\r\n\u2028\u2029]|\[(?:[^\r\n\u2028\u2029\]\\]|\\[^\r\n\u2028\u2029])*\])*\/[gimy]{0,4})/;
 var paramsRegex = /(\((?:([\w$][\w\d$]*)(?:\s*:\s*string)?)?[^)]*\))/;
-var groupsRegex = /\s*(var|let)\s+([\w$][\w\d$]*)\s*=\s*($groupName:[\w$][\w\d$]*)\s*\[\s*(\d+)\s*\]\s*;(?:\s*(?:var|let)\s+[\w$][\w\d$]*\s*=\s*($groupName)\s*\[\s*\d+\s*\]\s*;)*/;
+var groupsRegex = /(var|let)\s+([\w$][\w\d$]*)\s*=\s*($groupName:[\w$][\w\d$]*)\s*\[\s*(\d+)\s*\]\s*;(?:\s*(?:var|let)\s+[\w$][\w\d$]*\s*=\s*($groupName)\s*\[\s*\d+\s*\]\s*;)*/;
+var enumRegex = /(const\s+)?enum\s+([\w$][\w\d$]*)\s*\{[^}]*\}/;
 
 export function processRxFile(path: string, skipWrite = false): string|string[] {
     path = Path.resolve(path);
@@ -77,7 +83,7 @@ export function processRxFile(path: string, skipWrite = false): string|string[] 
             };
         }
         
-        var newLine = (text.match(/\r/g) || []).length / (text.match(/\n/g) || []).length < 0.5 ? '\n' : '\r\n';
+        var { newLine, indent } = detectTextStyle(text);
 
         var result: CombinedResult;
 
@@ -95,32 +101,45 @@ export function processRxFile(path: string, skipWrite = false): string|string[] 
             <RegExp>eval(combine([
                 matcherCommentRegex,
                 {
-                    regexs: [regexLiteralRegex, paramsRegex, groupsRegex],
+                    regexs: [
+                        regexLiteralRegex,
+                        paramsRegex,
+                        groupsRegex,
+                        enumRegex
+                    ],
                     or: true
                 }
             ]).getRegexLiteral({
                 global: true
             }));
 
-        var updatedText = text.replace(matcherRegex, function(match: string, indent: string, prefix: string, literal: string, params: string, firstParamName: string, groupDeclarationsKeyword: string, firstGroupName: string, groupArrayName: string, firstGroupIndex: string) {
+        var updatedText = text.replace(matcherRegex, function(match: string, lineIndent: string, prefix: string, literal: string, params: string, firstParamName: string, groupDeclarationsKeyword: string, firstGroupName: string, groupArrayName: string, firstGroupIndex: string, constEnum: string, enumName: string) {
             if (literal) {
-                return `${indent}${prefix}${result.getRegexLiteral({
+                return `${lineIndent}${prefix}${result.getRegexLiteral({
                     global,
                     ignoreCase,
                     multiline
                 })}`;
             } else if (params) {
-                return `${indent}${prefix}${result.getParametersSnippet({
+                return `${lineIndent}${prefix}${result.getParametersSnippet({
                     typed: /\.ts$/i.test(target),
                     matchName: firstParamName
                 })}`;
             } else if (groupDeclarationsKeyword) {
-                return `${indent}${prefix}${result.getGroupAliasDeclarationsSnippet({
+                return `${lineIndent}${prefix}${result.getGroupAliasDeclarationsSnippet({
                     useLet: groupDeclarationsKeyword == 'let',
                     arrayName: groupArrayName,
                     newLine,
-                    indent,
+                    lineIndent,
                     matchName: firstGroupIndex == '0' ? firstGroupName : undefined
+                })}`;
+            } else if (enumName) {
+                return `${lineIndent}${prefix}${result.getEnumDeclaration({
+                    useConst: !!constEnum,
+                    name: enumName,
+                    newLine,
+                    lineIndent,
+                    indent
                 })}`;
             } else {
                 return match;
@@ -145,4 +164,54 @@ export function processRxFile(path: string, skipWrite = false): string|string[] 
     var updatedTexts = targets.map(target => cacheMap[target].text);
 
     return isOptionsArray ? updatedTexts : updatedTexts[0];
+}
+
+function detectTextStyle(text: string): TextStyle {
+    var indentSpaces: string[] = text.match(/^[ \t]+/gm) || [];
+    var tabCount = 0;
+
+    var lastIndentLength: number;
+
+    var lengthToCount: number[] = [];
+
+    for (let indentSpace of indentSpaces) {
+        if (/\t/.test(indentSpace)) {
+            tabCount++;
+        } else {
+            let length = indentSpace.length;
+
+            if (lastIndentLength != undefined && length > lastIndentLength) {
+                let indentDiff = length - lastIndentLength;
+                lengthToCount[indentDiff] = (lengthToCount[indentDiff] || 0) + 1;
+            }
+
+            lastIndentLength = length; 
+        }
+    }
+
+    var indent: string;
+
+    if (tabCount < indentSpaces.length / 2) {
+        var indentInfos = lengthToCount
+            .map((count, length) => ({
+                count,
+                length
+            }))
+            .sort((a, b) => b.count - a.count);
+
+        if (indentInfos.length) {
+            indent = Array(indentInfos[0].length + 1).join(' ');
+        } else {
+            indent = '    ';
+        }
+    } else {
+        indent = '\t';
+    }
+
+    var newLine = (text.match(/\r/g) || []).length / (text.match(/\n/g) || []).length < 0.5 ? '\n' : '\r\n';
+
+    return {
+        indent,
+        newLine
+    };
 }

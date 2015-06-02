@@ -64,31 +64,6 @@ export class CombinedResult {
 
         return literal;
     }
-    
-    getGroupAliasDeclarationsSnippet({
-        arrayName = 'groups',
-        useLet = true,
-        newLine = '\n',
-        indent = '',
-        matchName = ''
-    } = <any>{}): string {
-        var lines: string[] = [];
-
-        if (matchName) {
-            lines.push(`${useLet ? 'let' : 'var'} ${matchName} = ${arrayName}[0];`);
-        }
-
-        var hideMap = this.groupNameHideMap;
-        
-        lines.push(...this.groupNames.map((name, index) =>
-            hop.call(hideMap, name) ? '' :
-                `${useLet ? 'let' : 'var'} ${name} = ${arrayName}[${index + 1}];`
-        ));
-
-        return lines
-            .filter(line => !!line)
-            .join(newLine + indent);
-    }
 
     getParametersSnippet({
         typed = false,
@@ -99,6 +74,60 @@ export class CombinedResult {
         } else {
             return this.groupNames.length ? `(${matchName}, ${this.groupNames.join(', ') })` : `(${matchName})`;
         }
+    }
+    
+    getGroupAliasDeclarationsSnippet({
+        arrayName = 'groups',
+        useLet = true,
+        newLine = '\n',
+        lineIndent = '',
+        matchName = ''
+    } = <any>{}): string {
+        var lines: string[] = [];
+
+        if (matchName) {
+            lines.push(`${useLet ? 'let' : 'var'} ${matchName} = ${arrayName}[0];`);
+        }
+
+        var hideMap = this.groupNameHideMap;
+        
+        this.groupNames.forEach((name, index) => {
+            if (!hop.call(hideMap, name)) {
+                lines.push(`${useLet ? 'let' : 'var'} ${name} = ${arrayName}[${index + 1}];`);
+            }
+        });
+
+        return lines.join(newLine + lineIndent);
+    }
+
+    getEnumDeclaration({
+        useConst = false,
+        name = 'ExecGroup',
+        newLine = '\n',
+        lineIndent = '',
+        indent = '    '
+    } = <any>{}): string {
+        var lines: string[] = [];
+        
+        var hideMap = this.groupNameHideMap;
+        var skipped = true; // skipped 0 as it starts from 1.
+
+        this.groupNames.forEach((name, index) => {
+            if (hop.call(hideMap, name)) {
+                skipped = true;
+            } else if (skipped) {
+                skipped = false;
+                lines.push(`${name} = ${index + 1}`);
+            } else {
+                lines.push(`${name}`);
+            }
+        });
+        
+        return (
+            `${useConst ? 'const ' : ''}enum ${name} {${newLine}` +
+            `${lineIndent + indent}${lines.join(',' + newLine + lineIndent + indent) }${newLine}` +
+            `${lineIndent}}`
+        );
     }
 }
 
