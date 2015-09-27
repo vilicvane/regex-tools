@@ -1,8 +1,10 @@
+/// <reference path="../typings/node/node.d.ts" />
 /// <reference path="../typings/mocha/mocha.d.ts" />
 /// <reference path="../typings/chai/chai.d.ts" />
 /// <reference path="../typings/lang.d.ts" />
+require('source-map-support').install();
 var chai_1 = require('chai');
-var RegexTools = require('../bin/index');
+var RegexTools = require('../bld/index');
 var caseCategoryMap = {
     "(?:...) wrapping": {
         "should not wrap root |": [
@@ -156,6 +158,15 @@ var caseCategoryMap = {
                     ]
                 },
                 expect: /(abcdef(?:ghi|jkl))/
+            },
+            {
+                regexs: [
+                    {
+                        name: 'abc',
+                        regexs: /def/
+                    }
+                ],
+                expect: /(def)/
             }
         ],
         "should capture group that has capture option true": [
@@ -175,6 +186,15 @@ var caseCategoryMap = {
                     capture: true
                 },
                 expect: /(abcdef(?:ghi|jkl))/
+            },
+            {
+                regexs: [
+                    {
+                        regexs: /def/,
+                        capture: true
+                    }
+                ],
+                expect: /(def)/
             }
         ]
     },

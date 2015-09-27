@@ -124,7 +124,7 @@ function combine(regexs) {
             or = regexs.or;
             capture = !!name || regexs.capture;
             repeat = regexs.repeat || '';
-            if (!/^(?:\?|[+*]\??|\{\d+(?:,\d*)?\})?$/.test(repeat)) {
+            if (!/^(?:\?\??|[+*]\??|\{\d+\}|\{\d+,\d*\}\??)?$/.test(repeat)) {
                 throw new Error("Invalid repeat option \"" + repeat + "\"");
             }
         }
@@ -253,5 +253,6 @@ function combine(regexs) {
         return !upperOr && hasOrOutside ? "(?:" + partialRegexStr + ")" : partialRegexStr;
     }
 }
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = combine;
 //# sourceMappingURL=combine.js.map

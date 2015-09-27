@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+        "target": "ES5",
+        "module": "commonjs",
+        "noEmitOnError": true,
+        "noImplicitAny": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "sourceMap": true,
+        "declaration": true,
+        "rootDir": "src",
+        "outDir": "bld"
+    },
+    "exclude": [
+        "test",
+        "node_modules",
+        "bld"
+    ]
+}

@@ -1,10 +1,13 @@
-﻿/// <reference path="../typings/mocha/mocha.d.ts" />
+﻿/// <reference path="../typings/node/node.d.ts" />
+/// <reference path="../typings/mocha/mocha.d.ts" />
 /// <reference path="../typings/chai/chai.d.ts" />
 /// <reference path="../typings/lang.d.ts" />
 
+require('source-map-support').install();
+
 import { expect, assert } from 'chai';
 
-import RegexTools = require('../bin/index');
+import RegexTools = require('../bld/index');
 
 interface CombineTestCase {
     regexs: RegexTools.NestedRegexs,
@@ -169,19 +172,10 @@ var caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
                 regexs: [
                     {
                         name: 'abc',
-                        regex: /def/
+                        regexs: /def/
                     }
                 ],
-                expect: /(abc)/
-            },
-            {
-                regexs: [
-                    {
-                        regex: /def/,
-                        capture: true
-                    }
-                ],
-                expect: /(abc)/
+                expect: /(def)/
             }
         ],
         "should capture group that has capture option true": [
@@ -201,6 +195,15 @@ var caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
                     capture: true
                 },
                 expect: /(abcdef(?:ghi|jkl))/
+            },
+            {
+                regexs: [
+                    {
+                        regexs: /def/,
+                        capture: true
+                    }
+                ],
+                expect: /(def)/
             }
         ]
     },

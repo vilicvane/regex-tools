@@ -158,7 +158,7 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
         var or: boolean;
         var capture: boolean;
         var repeat: string;
-
+        
         if (regexs instanceof Array) {
             regexArray = regexs;
             or = false;
@@ -178,7 +178,7 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
             capture = !!name || (<NestedRegexOptions>regexs).capture;
             repeat = (<NestedRegexOptions>regexs).repeat || '';
 
-            if (!/^(?:\?|[+*]\??|\{\d+(?:,\d*)?\})?$/.test(repeat)) {
+            if (!/^(?:\?\??|[+*]\??|\{\d+\}|\{\d+,\d*\}\??)?$/.test(repeat)) {
                 throw new Error(`Invalid repeat option "${repeat}"`);
             }
         }
@@ -194,7 +194,7 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
                 groupNameToIndex[name] = groupCount;
             }
         }
-
+        
         var combined = regexArray
             .map(regex => {
                 if (regex instanceof RegExp) {
