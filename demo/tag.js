@@ -29,4 +29,10 @@ html = html.replace(tagRegex, function /* /$tag/ */ (text,
     return text;
 });
 
+html = html.replace(tagRegex, function /* /$tag/ */ (
+    text, foo, bar
+) {
+    return text;
+});
+
 console.log(groups);
