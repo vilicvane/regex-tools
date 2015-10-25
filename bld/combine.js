@@ -14,16 +14,6 @@ var CombinedResult = (function () {
         this.groupNameToIndex = groupNameToIndex;
         this.groupNameHideMap = groupNameHideMap;
     }
-    CombinedResult.prototype.getStringLiteral = function (singleQuote) {
-        if (singleQuote === void 0) { singleQuote = false; }
-        var literal = JSON.stringify(this.combined);
-        if (singleQuote) {
-            literal = literal
-                .replace(/\\.|\\(")/g, function (m, quote) { return quote ? "\\'" : m; })
-                .replace(/"/g, "'");
-        }
-        return literal;
-    };
     CombinedResult.prototype.getRegexLiteral = function (_a) {
         var _b = _a === void 0 ? {} : _a, _c = _b.global, global = _c === void 0 ? false : _c, _d = _b.ignoreCase, ignoreCase = _d === void 0 ? false : _d, _e = _b.multiline, multiline = _e === void 0 ? false : _e;
         var literal = "/" + this.combined.replace(/\\.|(\/)/g, function (m, g1) { return g1 ? '\\/' : m; }) + "/";
@@ -39,12 +29,13 @@ var CombinedResult = (function () {
         return literal;
     };
     CombinedResult.prototype.getParametersSnippet = function (_a) {
-        var _b = _a.typed, typed = _b === void 0 ? false : _b, _c = _a.matchName, matchName = _c === void 0 ? 'match' : _c;
+        var _b = _a.typed, typed = _b === void 0 ? false : _b, _c = _a.matchName, matchName = _c === void 0 ? 'text' : _c, _d = _a.separator, separator = _d === void 0 ? ', ' : _d;
+        var names = [matchName].concat(this.groupNames);
         if (typed) {
-            return this.groupNames.length ? "(" + matchName + ": string, " + this.groupNames.map(function (name) { return name + ': string'; }).join(', ') + ")" : "(" + matchName + ": string)";
+            return names.map(function (name) { return name + ': string'; }).join(separator);
         }
         else {
-            return this.groupNames.length ? "(" + matchName + ", " + this.groupNames.join(', ') + ")" : "(" + matchName + ")";
+            return names.join(separator);
         }
     };
     CombinedResult.prototype.getGroupAliasDeclarationsSnippet = function (_a) {
@@ -173,11 +164,11 @@ function combine(regexs) {
         var bracketDepth = 0;
         // whether has | outside a group
         var hasOrOutside = false;
-        var partialRegexStr = regexStr.replace(groupRegex, function (match, groupName, groupNameColon, digitFollowsBR, braWithQ, bra, ket, or, sBra, sKet, brNumber) {
+        var partialRegexStr = regexStr.replace(groupRegex, function (text, groupName, groupNameColon, digitFollowsBR, braWithQ, bra, ket, or, sBra, sKet, brNumber) {
             if (groupName) {
                 if (sBraOpen) {
                     //throw new Error(`Group name can not be in a character class "[...]" in regex #${regexIndex}`);
-                    return match;
+                    return text;
                 }
                 if (groupNameColon) {
                     var toHide = groupName.charAt(0) == '~';
@@ -209,45 +200,45 @@ function combine(regexs) {
                 if (!sBraOpen) {
                     bracketDepth++;
                 }
-                return match;
+                return text;
             }
             if (bra) {
                 if (!sBraOpen) {
                     bracketDepth++;
                     partialGroupCount++;
                 }
-                return match;
+                return text;
             }
             if (ket) {
                 if (!sBraOpen) {
                     bracketDepth--;
                 }
-                return match;
+                return text;
             }
             if (or) {
                 if (!hasOrOutside && !sBraOpen && bracketDepth == 0) {
                     hasOrOutside = true;
                 }
-                return match;
+                return text;
             }
             if (sBra) {
                 if (!sBraOpen) {
                     sBraOpen = true;
                 }
-                return match;
+                return text;
             }
             if (sKet) {
                 if (sBraOpen) {
                     sBraOpen = false;
                 }
-                return match;
+                return text;
             }
             if (brNumber) {
                 var index = Number(brNumber);
                 index += groupCount;
                 return "\\" + index;
             }
-            return match;
+            return text;
         });
         groupCount += partialGroupCount;
         return !upperOr && hasOrOutside ? "(?:" + partialRegexStr + ")" : partialRegexStr;

@@ -9,9 +9,9 @@ So I write this simple tool to manage long and complex regular expressions such 
 npm install regex-tools --save-dev
 ```
 
-### RX File
+### Create Options File
 
-Create a `test.rx` file and write something like this.
+Create a `test-regex.js` file and write something like this.
 
 ```javascript
 exports.options = {
@@ -32,7 +32,7 @@ exports.options = {
 
 ### Source File
 
-Create a `target.js` and mark related code with `/* /$test/ */` (`$` followed by the name you configured in .rx file).
+Create a `target.js` and mark related code with `/* /$test/ */` (`$` followed by the name you configured in options file).
 
 ```typescript
 var testRegex = /* /$test/ */ /./;
@@ -42,7 +42,7 @@ var groups = testRegex.exec('<abc123>');
 /* /$test/ */
 var text = groups[0];
 
-'<def456>'.replace(testRegex, function /* /$test/ */(text) {
+'<def456>'.replace(testRegex, function /* /$test/ */ (text) {
 	return text;
 });
 ```
@@ -58,10 +58,10 @@ var RegexTools = require('regex-tools');
 var glob = require('glob');
 
 Gulp.task('update-regex', function () {
-    var rxFiles = glob.sync('*.rx');
+    var optionsFiles = glob.sync('*-regex.rx');
 
-    rxFiles.forEach(function (path) {
-        RegexTools.processRxFile(path);
+    optionsFiles.forEach(function (path) {
+        RegexTools.process(path);
     });
 });
 ```
@@ -86,7 +86,7 @@ Problem solved! You may checkout demo for relatively more complex examples.
 
 ## API References
 
-A .rx file is actually a node module that exports options. `exports.options` could be either `RxOptions` or `RxOptions[]`.
+An options file is a node module that exports options. `exports.options` could be either `RxOptions` or `RxOptions[]`.
 
 And here's related type declarations:
 
@@ -125,6 +125,47 @@ interface NestedRegexArray
 
 type NestedRegexs = NestedRegexArray|NestedRegexOptions;
 ```
+
+## Back Reference Tracking
+
+If you are using back reference, it will keep the index updated. That means you should write back refenrences relative to the current part of regular expression.
+
+The options below will result in `/(distraction)(["'])\1/`.
+
+```js
+exports.options = {
+    name: 'test',
+    operation: 'combine',
+    target: 'target.js',
+    regexs: [
+		/(distraction)/,
+        /(["'])\1/
+	]
+};
+```
+
+However as `\[number]` can also be a char with code in octal form, it's kind of complex to deal with. Please avoid writing a char (instead of a back reference) in this form.
+
+## Named References
+
+Another way to deal with back references is to use named references provided by the tool.
+
+```js
+exports.options = {
+    name: 'test',
+    operation: 'combine',
+    target: 'target.js',
+    regexs: [
+		/($quote:["'])/,
+        /.*?/,
+        /($quote)/
+	]
+};
+```
+
+When generating group/parameter/enumerator list, the name of named reference (as well as name specified in `NestedRegexOptions`) will be exported according to its capture index.
+
+For groups and enumerator list, if you don't want some of them to show up, you may add a `~` between `$` and name. Such as `($~quote:["'])`.
 
 ## Tips
 

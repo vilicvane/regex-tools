@@ -6,7 +6,7 @@
  * MIT License
  */
 
-var hop = Object.prototype.hasOwnProperty;
+const hop = Object.prototype.hasOwnProperty;
 
 export interface NestedRegexOptions {
     name?: string;
@@ -21,7 +21,7 @@ export interface NestedRegexArray
 
 export type NestedRegexs = NestedRegexArray|NestedRegexOptions;
 
-var groupRegex = /\(\$(~?[\w$][\w\d$]*)(?:(:)(?!\?)|\)(?=(\d)?))|(\(\?)|(\()|(\))|(\|)|(\[)|(\])|\\(\d+)|\\.|./g;
+const groupRegex = /\(\$(~?[\w$][\w\d$]*)(?:(:)(?!\?)|\)(?=(\d)?))|(\(\?)|(\()|(\))|(\|)|(\[)|(\])|\\(\d+)|\\.|./g;
 
 export class CombinedResult {
     constructor(
@@ -30,25 +30,13 @@ export class CombinedResult {
         public groupNameToIndex: Dictionary<number>,
         public groupNameHideMap: Dictionary<void>
     ) { }
-
-    getStringLiteral(singleQuote = false): string {
-        var literal = JSON.stringify(this.combined);
-
-        if (singleQuote) {
-            literal = literal
-                .replace(/\\.|\\(")/g, (m: string, quote: string) => quote ? `\\'` : m)
-                .replace(/"/g, `'`);
-        }
-
-        return literal;
-    }
     
     getRegexLiteral({
         global = false,
         ignoreCase = false,
         multiline = false
     } = <any>{}): string {
-        var literal = `/${this.combined.replace(/\\.|(\/)/g, (m: string, g1: string) => g1 ? '\\/' : m) }/`;
+        let literal = `/${this.combined.replace(/\\.|(\/)/g, (m: string, g1: string) => g1 ? '\\/' : m) }/`;
 
         if (global) {
             literal += 'g';
@@ -67,12 +55,15 @@ export class CombinedResult {
 
     getParametersSnippet({
         typed = false,
-        matchName = 'match'
+        matchName = 'text',
+        separator = ', '
     }): string {
+        let names = [matchName].concat(this.groupNames);
+        
         if (typed) {
-            return this.groupNames.length ? `(${matchName}: string, ${this.groupNames.map(name => name + ': string').join(', ') })` : `(${matchName}: string)`;
+            return names.map(name => name + ': string').join(separator);
         } else {
-            return this.groupNames.length ? `(${matchName}, ${this.groupNames.join(', ') })` : `(${matchName})`;
+            return names.join(separator);
         }
     }
     
@@ -83,13 +74,13 @@ export class CombinedResult {
         lineIndent = '',
         matchName = ''
     } = <any>{}): string {
-        var lines: string[] = [];
+        let lines: string[] = [];
 
         if (matchName) {
             lines.push(`${useLet ? 'let' : 'var'} ${matchName} = ${arrayName}[0];`);
         }
 
-        var hideMap = this.groupNameHideMap;
+        let hideMap = this.groupNameHideMap;
         
         this.groupNames.forEach((name, index) => {
             if (!hop.call(hideMap, name)) {
@@ -107,10 +98,10 @@ export class CombinedResult {
         lineIndent = '',
         indent = '    '
     } = <any>{}): string {
-        var lines: string[] = [];
+        let lines: string[] = [];
         
-        var hideMap = this.groupNameHideMap;
-        var skipped = true; // skipped 0 as it starts from 1.
+        let hideMap = this.groupNameHideMap;
+        let skipped = true; // skipped 0 as it starts from 1.
 
         this.groupNames.forEach((name, index) => {
             if (hop.call(hideMap, name)) {
@@ -132,17 +123,17 @@ export class CombinedResult {
 }
 
 export default function combine(regexs: NestedRegexs): CombinedResult {
-    var groupCount = 0;
-    var groupNameToIndex: Dictionary<number> = {};
-    var groupNameHideMap: Dictionary<void> = {};
+    let groupCount = 0;
+    let groupNameToIndex: Dictionary<number> = {};
+    let groupNameHideMap: Dictionary<void> = {};
 
-    var regexIndex = 0;
+    let regexIndex = 0;
 
-    var combined = processRegexs(regexs, true);
+    let combined = processRegexs(regexs, true);
 
-    var groupNames: string[] = [];
+    let groupNames: string[] = [];
 
-    for (var i = 0; i < groupCount; i++) {
+    for (let i = 0; i < groupCount; i++) {
         groupNames.push('g' + (i + 1));
     }
     
@@ -153,11 +144,11 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
     return new CombinedResult(combined, groupNames, groupNameToIndex, groupNameHideMap);
 
     function processRegexs(regexs: NestedRegexs, upperOr: boolean): string {
-        var name: string;
-        var regexArray: NestedRegexArray;
-        var or: boolean;
-        var capture: boolean;
-        var repeat: string;
+        let name: string;
+        let regexArray: NestedRegexArray;
+        let or: boolean;
+        let capture: boolean;
+        let repeat: string;
         
         if (regexs instanceof Array) {
             regexArray = regexs;
@@ -195,7 +186,7 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
             }
         }
         
-        var combined = regexArray
+        let combined = regexArray
             .map(regex => {
                 if (regex instanceof RegExp) {
                     return processPartialRegex(regex, or);
@@ -219,7 +210,7 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
     function processPartialRegex(regex: RegExp, upperOr: boolean): string {
         regexIndex++;
 
-        var regexStr = regex.source;
+        let regexStr = regex.source;
 
         // syntax test
         try {
@@ -230,16 +221,16 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
         }
 
         // abc($name:) ($name)
-        var partialGroupCount = 0;
+        let partialGroupCount = 0;
 
-        var sBraOpen = false;
-        var bracketDepth = 0;
+        let sBraOpen = false;
+        let bracketDepth = 0;
         // whether has | outside a group
-        var hasOrOutside = false;
+        let hasOrOutside = false;
 
-        var partialRegexStr = regexStr.replace(
+        let partialRegexStr = regexStr.replace(
             groupRegex, (
-                match: string,
+                text: string,
                 groupName: string,
                 groupNameColon: string,
                 digitFollowsBR: string,
@@ -254,7 +245,7 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
                 if (groupName) {
                     if (sBraOpen) {
                         //throw new Error(`Group name can not be in a character class "[...]" in regex #${regexIndex}`);
-                        return match;
+                        return text;
                     }
 
                     if (groupNameColon) {
@@ -280,7 +271,7 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
                         groupNameToIndex[groupName] = groupCount + partialGroupCount;
                         return '(';
                     } else if (hop.call(groupNameToIndex, groupName)) {
-                        var index = groupNameToIndex[groupName];
+                        let index = groupNameToIndex[groupName];
                         return digitFollowsBR ? `(?:\\${index})` : `\\${index}`;
                     } else {
                         throw new Error(`Undefined group name "${groupName}" in regex #${regexIndex}`);
@@ -291,7 +282,7 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
                     if (!sBraOpen) {
                         bracketDepth++;
                     }
-                    return match;
+                    return text;
                 }
 
                 if (bra) {
@@ -299,44 +290,44 @@ export default function combine(regexs: NestedRegexs): CombinedResult {
                         bracketDepth++;
                         partialGroupCount++;
                     }
-                    return match;
+                    return text;
                 }
 
                 if (ket) {
                     if (!sBraOpen) {
                         bracketDepth--;
                     }
-                    return match;
+                    return text;
                 }
 
                 if (or) {
                     if (!hasOrOutside && !sBraOpen && bracketDepth == 0) {
                         hasOrOutside = true;
                     }
-                    return match;
+                    return text;
                 }
 
                 if (sBra) {
                     if (!sBraOpen) {
                         sBraOpen = true;
                     }
-                    return match;
+                    return text;
                 }
 
                 if (sKet) {
                     if (sBraOpen) {
                         sBraOpen = false;
                     }
-                    return match;
+                    return text;
                 }
 
                 if (brNumber) {
-                    var index = Number(brNumber);
+                    let index = Number(brNumber);
                     index += groupCount;
                     return `\\${index}`;
                 }
 
-                return match;
+                return text;
             });
 
         groupCount += partialGroupCount;

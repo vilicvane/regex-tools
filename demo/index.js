@@ -1,8 +1,8 @@
-﻿var RegexTools = require('../bin/index');
+﻿var RegexTools = require('../bld/index');
 
 // remove the second argument (skipWrite) to actually update target source files.
-var tagUpdated = RegexTools.processRxFile('tag.rx', true);
-var stringLiteralUpdated = RegexTools.processRxFile('string-literal.rx', true);
+var tagUpdated = RegexTools.process('tag-regex.js', true);
+var stringLiteralUpdated = RegexTools.process('string-literal-regex.js', true);
 
 console.log('tag.js');
 console.log(tagUpdated);

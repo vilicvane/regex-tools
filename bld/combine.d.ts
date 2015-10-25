@@ -14,11 +14,11 @@ export declare class CombinedResult {
     groupNameToIndex: Dictionary<number>;
     groupNameHideMap: Dictionary<void>;
     constructor(combined: string, groupNames: string[], groupNameToIndex: Dictionary<number>, groupNameHideMap: Dictionary<void>);
-    getStringLiteral(singleQuote?: boolean): string;
     getRegexLiteral({global, ignoreCase, multiline}?: any): string;
-    getParametersSnippet({typed, matchName}: {
+    getParametersSnippet({typed, matchName, separator}: {
         typed?: boolean;
         matchName?: string;
+        separator?: string;
     }): string;
     getGroupAliasDeclarationsSnippet({arrayName, useLet, newLine, lineIndent, matchName}?: any): string;
     getEnumDeclaration({useConst, name, newLine, lineIndent, indent}?: any): string;

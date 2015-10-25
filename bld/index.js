@@ -11,10 +11,10 @@ var combine_1 = require('./combine');
 var combine_2 = require('./combine');
 exports.combine = combine_2.default;
 var regexLiteralRegex = /(\/(?:[^\r\n\u2028\u2029*/\[\\]|\\[^\r\n\u2028\u2029]|\[(?:[^\r\n\u2028\u2029\]\\]|\\[^\r\n\u2028\u2029])*\])(?:[^\r\n\u2028\u2029/\[\\]|\\[^\r\n\u2028\u2029]|\[(?:[^\r\n\u2028\u2029\]\\]|\\[^\r\n\u2028\u2029])*\])*\/[gimy]{0,4})/;
-var paramsRegex = /(\((?:([\w$][\w\d$]*)(?:\s*:\s*string)?)?[^)]*\))/;
+var paramsRegex = /(\((?:(\s*)([\w$][\w\d$]*)(?:\s*:\s*string)?)?(?:(\s*,\s*)[^:)]*\S)?(\s*)\))/;
 var groupsRegex = /(var|let)\s+([\w$][\w\d$]*)\s*=\s*($groupName:[\w$][\w\d$]*)\s*\[\s*(\d+)\s*\]\s*;(?:\s*(?:var|let)\s+[\w$][\w\d$]*\s*=\s*($groupName)\s*\[\s*\d+\s*\]\s*;)*/;
 var enumRegex = /(const\s+)?enum\s+([\w$][\w\d$]*)\s*\{[^}]*\}/;
-function processRxFile(path, skipWrite) {
+function process(path, skipWrite) {
     if (skipWrite === void 0) { skipWrite = false; }
     path = Path.resolve(path);
     var dir = Path.dirname(path);
@@ -64,7 +64,7 @@ function processRxFile(path, skipWrite) {
         ]).getRegexLiteral({
             global: true
         }));
-        var updatedText = text.replace(matcherRegex, function (match, lineIndent, prefix, literal, params, firstParamName, groupDeclarationsKeyword, firstGroupName, groupArrayName, firstGroupIndex, constEnum, enumName) {
+        var updatedText = text.replace(matcherRegex, function (text, lineIndent, prefix, literal, params, whitespacesBeforeParams, firstParamName, separatorBetweenParams, whitespacesAfterParams, groupDeclarationsKeyword, firstGroupName, groupArrayName, firstGroupIndex, constEnum, enumName) {
             if (literal) {
                 return "" + lineIndent + prefix + result.getRegexLiteral({
                     global: global,
@@ -73,10 +73,14 @@ function processRxFile(path, skipWrite) {
                 });
             }
             else if (params) {
-                return "" + lineIndent + prefix + result.getParametersSnippet({
+                var separator = whitespacesBeforeParams ?
+                    ',' + whitespacesBeforeParams :
+                    separatorBetweenParams || ', ';
+                return "" + lineIndent + prefix + "(" + whitespacesBeforeParams + result.getParametersSnippet({
                     typed: /\.ts$/i.test(target),
-                    matchName: firstParamName
-                });
+                    matchName: firstParamName,
+                    separator: separator
+                }) + whitespacesAfterParams + ")";
             }
             else if (groupDeclarationsKeyword) {
                 return "" + lineIndent + prefix + result.getGroupAliasDeclarationsSnippet({
@@ -97,7 +101,7 @@ function processRxFile(path, skipWrite) {
                 });
             }
             else {
-                return match;
+                return text;
             }
         });
         if (updatedText != text) {
@@ -116,7 +120,7 @@ function processRxFile(path, skipWrite) {
     var updatedTexts = targets.map(function (target) { return cacheMap[target].text; });
     return isOptionsArray ? updatedTexts : updatedTexts[0];
 }
-exports.processRxFile = processRxFile;
+exports.process = process;
 function detectTextStyle(text) {
     var indentSpaces = text.match(/^[ \t]+/gm) || [];
     var tabCount = 0;

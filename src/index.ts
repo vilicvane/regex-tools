@@ -36,26 +36,26 @@ interface TextStyle {
     newLine: string;
 }
 
-var regexLiteralRegex = /(\/(?:[^\r\n\u2028\u2029*/\[\\]|\\[^\r\n\u2028\u2029]|\[(?:[^\r\n\u2028\u2029\]\\]|\\[^\r\n\u2028\u2029])*\])(?:[^\r\n\u2028\u2029/\[\\]|\\[^\r\n\u2028\u2029]|\[(?:[^\r\n\u2028\u2029\]\\]|\\[^\r\n\u2028\u2029])*\])*\/[gimy]{0,4})/;
-var paramsRegex = /(\((?:([\w$][\w\d$]*)(?:\s*:\s*string)?)?[^)]*\))/;
-var groupsRegex = /(var|let)\s+([\w$][\w\d$]*)\s*=\s*($groupName:[\w$][\w\d$]*)\s*\[\s*(\d+)\s*\]\s*;(?:\s*(?:var|let)\s+[\w$][\w\d$]*\s*=\s*($groupName)\s*\[\s*\d+\s*\]\s*;)*/;
-var enumRegex = /(const\s+)?enum\s+([\w$][\w\d$]*)\s*\{[^}]*\}/;
+const regexLiteralRegex = /(\/(?:[^\r\n\u2028\u2029*/\[\\]|\\[^\r\n\u2028\u2029]|\[(?:[^\r\n\u2028\u2029\]\\]|\\[^\r\n\u2028\u2029])*\])(?:[^\r\n\u2028\u2029/\[\\]|\\[^\r\n\u2028\u2029]|\[(?:[^\r\n\u2028\u2029\]\\]|\\[^\r\n\u2028\u2029])*\])*\/[gimy]{0,4})/;
+const paramsRegex = /(\((?:(\s*)([\w$][\w\d$]*)(?:\s*:\s*string)?)?(?:(\s*,\s*)[^:)]*\S)?(\s*)\))/;
+const groupsRegex = /(var|let)\s+([\w$][\w\d$]*)\s*=\s*($groupName:[\w$][\w\d$]*)\s*\[\s*(\d+)\s*\]\s*;(?:\s*(?:var|let)\s+[\w$][\w\d$]*\s*=\s*($groupName)\s*\[\s*\d+\s*\]\s*;)*/;
+const enumRegex = /(const\s+)?enum\s+([\w$][\w\d$]*)\s*\{[^}]*\}/;
 
-export function processRxFile(path: string, skipWrite = false): string|string[] {
+export function process(path: string, skipWrite = false): string|string[] {
     path = Path.resolve(path);
-    var dir = Path.dirname(path);
+    let dir = Path.dirname(path);
 
-    var rxModule: RxModule = require(path);
+    let rxModule: RxModule = require(path);
 
-    var rxOptions = rxModule.options;
-    var isOptionsArray = rxOptions instanceof Array;
-    var optionGroups = isOptionsArray ? <RxOptions[]>rxOptions : [<RxOptions>rxOptions];
+    let rxOptions = rxModule.options;
+    let isOptionsArray = rxOptions instanceof Array;
+    let optionGroups = isOptionsArray ? <RxOptions[]>rxOptions : [<RxOptions>rxOptions];
 
-    var cacheMap: Dictionary<OutputCache> = {};
-    var targets: string[] = [];
+    let cacheMap: Dictionary<OutputCache> = {};
+    let targets: string[] = [];
 
     optionGroups.forEach(options => {
-        var {
+        let {
             name,
             target,
             operation,
@@ -68,9 +68,9 @@ export function processRxFile(path: string, skipWrite = false): string|string[] 
         target = Path.resolve(dir, target);
         targets.push(target);
 
-        var cache = cacheMap[target];
+        let cache = cacheMap[target];
 
-        var text: string;
+        let text: string;
 
         if (cache) {
             text = cache.text;
@@ -83,9 +83,9 @@ export function processRxFile(path: string, skipWrite = false): string|string[] 
             };
         }
         
-        var { newLine, indent } = detectTextStyle(text);
+        let { newLine, indent } = detectTextStyle(text);
 
-        var result: CombinedResult;
+        let result: CombinedResult;
 
         switch (operation) {
             case 'combine':
@@ -95,10 +95,10 @@ export function processRxFile(path: string, skipWrite = false): string|string[] 
                 return;
         }
 
-        var matcherCommentRegex = new RegExp(`([ \\t]*)(/\\*\\s*/\\$${name}/\\s*\\*/\\s*)`);
+        let matcherCommentRegex = new RegExp(`([ \\t]*)(/\\*\\s*/\\$${name}/\\s*\\*/\\s*)`);
 
-        var matcherRegex =
-            <RegExp>eval(combine([
+        let matcherRegex = eval(
+            combine([
                 matcherCommentRegex,
                 {
                     regexs: [
@@ -111,9 +111,26 @@ export function processRxFile(path: string, skipWrite = false): string|string[] 
                 }
             ]).getRegexLiteral({
                 global: true
-            }));
+            })
+        ) as RegExp;
 
-        var updatedText = text.replace(matcherRegex, function(match: string, lineIndent: string, prefix: string, literal: string, params: string, firstParamName: string, groupDeclarationsKeyword: string, firstGroupName: string, groupArrayName: string, firstGroupIndex: string, constEnum: string, enumName: string) {
+        let updatedText = text.replace(matcherRegex, (
+            text: string,
+            lineIndent: string,
+            prefix: string,
+            literal: string,
+            params: string,
+            whitespacesBeforeParams: string,
+            firstParamName: string,
+            separatorBetweenParams: string,
+            whitespacesAfterParams: string,
+            groupDeclarationsKeyword: string,
+            firstGroupName: string,
+            groupArrayName: string,
+            firstGroupIndex: string,
+            constEnum: string,
+            enumName: string
+        ) => {
             if (literal) {
                 return `${lineIndent}${prefix}${result.getRegexLiteral({
                     global,
@@ -121,10 +138,17 @@ export function processRxFile(path: string, skipWrite = false): string|string[] 
                     multiline
                 })}`;
             } else if (params) {
-                return `${lineIndent}${prefix}${result.getParametersSnippet({
-                    typed: /\.ts$/i.test(target),
-                    matchName: firstParamName
-                })}`;
+                let separator = whitespacesBeforeParams ?
+                    ',' + whitespacesBeforeParams :
+                    separatorBetweenParams || ', ';
+                
+                return `${lineIndent}${prefix}(${whitespacesBeforeParams}${
+                    result.getParametersSnippet({
+                        typed: /\.ts$/i.test(target),
+                        matchName: firstParamName,
+                        separator
+                    })
+                }${whitespacesAfterParams})`;
             } else if (groupDeclarationsKeyword) {
                 return `${lineIndent}${prefix}${result.getGroupAliasDeclarationsSnippet({
                     useLet: groupDeclarationsKeyword == 'let',
@@ -142,7 +166,7 @@ export function processRxFile(path: string, skipWrite = false): string|string[] 
                     indent
                 })}`;
             } else {
-                return match;
+                return text;
             }
         });
 
@@ -161,18 +185,18 @@ export function processRxFile(path: string, skipWrite = false): string|string[] 
         }
     }
 
-    var updatedTexts = targets.map(target => cacheMap[target].text);
+    let updatedTexts = targets.map(target => cacheMap[target].text);
 
     return isOptionsArray ? updatedTexts : updatedTexts[0];
 }
 
 function detectTextStyle(text: string): TextStyle {
-    var indentSpaces: string[] = text.match(/^[ \t]+/gm) || [];
-    var tabCount = 0;
+    let indentSpaces: string[] = text.match(/^[ \t]+/gm) || [];
+    let tabCount = 0;
 
-    var lastIndentLength: number;
+    let lastIndentLength: number;
 
-    var lengthToCount: number[] = [];
+    let lengthToCount: number[] = [];
 
     for (let indentSpace of indentSpaces) {
         if (/\t/.test(indentSpace)) {
@@ -189,10 +213,10 @@ function detectTextStyle(text: string): TextStyle {
         }
     }
 
-    var indent: string;
+    let indent: string;
 
     if (tabCount < indentSpaces.length / 2) {
-        var indentInfos = lengthToCount
+        let indentInfos = lengthToCount
             .map((count, length) => ({
                 count,
                 length
@@ -208,7 +232,7 @@ function detectTextStyle(text: string): TextStyle {
         indent = '\t';
     }
 
-    var newLine = (text.match(/\r/g) || []).length / (text.match(/\n/g) || []).length < 0.5 ? '\n' : '\r\n';
+    let newLine = (text.match(/\r/g) || []).length / (text.match(/\n/g) || []).length < 0.5 ? '\n' : '\r\n';
 
     return {
         indent,
