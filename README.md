@@ -130,7 +130,7 @@ type NestedRegexs = NestedRegexArray|NestedRegexOptions;
 
 If you are using back reference, it will keep the index updated. That means you should write back refenrences relative to the current part of regular expression.
 
-The options below will result in `/(distraction)(["'])\1/`.
+The options below will result in `/(distraction)(["'])\2/`.
 
 ```js
 exports.options = {
