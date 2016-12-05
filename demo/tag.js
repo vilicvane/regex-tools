@@ -1,4 +1,4 @@
-﻿// run `node index.js` under demo directory to see what changes.
+// run `node index.js` under demo directory to see what changes.
 
 var tagRegex = /* /$tag/ */ /./;
 

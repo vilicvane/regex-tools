@@ -1,1 +1,1 @@
-﻿var stringLiteralRegex = /* /$stringLiteral/ */ /./;
+var stringLiteralRegex = /* /$stringLiteral/ */ /./;

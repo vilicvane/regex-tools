@@ -1,4 +1,4 @@
-﻿/*!
+/*!
  * Regular Expression Tools
  * https://github.com/vilic/regex-tools
  */

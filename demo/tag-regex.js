@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 let tagOpen = /</;
 let tagName = /($tag:[a-z][^\s/>]*)/;

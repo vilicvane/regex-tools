@@ -1,4 +1,4 @@
-﻿# Regular Expression Tools [![Build Status](https://travis-ci.org/vilic/regex-tools.svg)](https://travis-ci.org/vilic/regex-tools)
+# Regular Expression Tools [![Build Status](https://travis-ci.org/vilic/regex-tools.svg)](https://travis-ci.org/vilic/regex-tools)
 
 I use regular expressions to do a lot of things, and managing a long regular expression could be painful.
 So I write this simple tool to manage long and complex regular expressions such as regular expressions of lex parser.

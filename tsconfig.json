@@ -11,7 +11,8 @@
         "stripInternal": true,
         "declaration": true,
         "rootDir": "src",
-        "outDir": "bld"
+        "outDir": "bld",
+        "newLine": "LF"
     },
     "exclude": [
         "test",

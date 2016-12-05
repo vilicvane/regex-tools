@@ -1,4 +1,4 @@
-﻿/**
+/**
  * This is a sample of a regular expression that matches string literal (ES5).
  * https://github.com/vilic/regex-tools
  */

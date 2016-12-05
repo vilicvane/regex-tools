@@ -1,4 +1,4 @@
-﻿var RegexTools = require('../bld/index');
+var RegexTools = require('../bld/index');
 
 // remove the second argument (skipWrite) to actually update target source files.
 var tagUpdated = RegexTools.process('tag-regex.js', true);
