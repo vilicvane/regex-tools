@@ -1,11 +1,19 @@
-var RegexTools = require('../bld/index');
+'use strict';
 
-// remove the second argument (skipWrite) to actually update target source files.
-var tagUpdated = RegexTools.process('tag-regex.js', true);
-var stringLiteralUpdated = RegexTools.process('string-literal-regex.js', true);
+const Path = require('path');
 
-console.log('tag.js');
-console.log(tagUpdated);
+const RegexTools = require('../bld/index');
 
-console.log('string-literal.js');
-console.log(stringLiteralUpdated);
+const names = ['tag', 'string-literal'];
+
+for (let name of names) {
+    let sourceFilePath = Path.join(__dirname, name + '.js');
+    let regexFilePath = Path.join(__dirname, name + '-regex.js');
+    
+    console.log(Array(80).join('='));
+    console.log('SOURCE FILE', sourceFilePath);
+    console.log(Array(80).join('='));
+    console.log();
+    // remove the second argument (skipWrite) to actually update target source files.
+    console.log(RegexTools.process(regexFilePath, true));
+}
