@@ -34,10 +34,10 @@ interface TextStyle {
     newLine: string;
 }
 
-const regexLiteralRegex = /(\/(?:[^\r\n\u2028\u2029*/\[\\]|\\[^\r\n\u2028\u2029]|\[(?:[^\r\n\u2028\u2029\]\\]|\\[^\r\n\u2028\u2029])*\])(?:[^\r\n\u2028\u2029/\[\\]|\\[^\r\n\u2028\u2029]|\[(?:[^\r\n\u2028\u2029\]\\]|\\[^\r\n\u2028\u2029])*\])*\/[gimy]{0,4})/;
-const paramsRegex = /(\((?:(\s*)([\w$][\w\d$]*)(?:\s*:\s*string)?)?(?:(\s*,\s*)[^)]*\S)?(\s*)\))/;
-const groupsRegex = /(var|let)\s+([\w$][\w\d$]*)\s*=\s*($groupName:[\w$][\w\d$]*)\s*\[\s*(\d+)\s*\]\s*;(?:\s*(?:var|let)\s+[\w$][\w\d$]*\s*=\s*($groupName)\s*\[\s*\d+\s*\]\s*;)*/;
-const enumRegex = /(const\s+)?enum\s+([\w$][\w\d$]*)\s*\{[^}]*\}/;
+const REGEX_LITERAL_REGEX = /(\/(?:[^\r\n\u2028\u2029*/\[\\]|\\[^\r\n\u2028\u2029]|\[(?:[^\r\n\u2028\u2029\]\\]|\\[^\r\n\u2028\u2029])*\])(?:[^\r\n\u2028\u2029/\[\\]|\\[^\r\n\u2028\u2029]|\[(?:[^\r\n\u2028\u2029\]\\]|\\[^\r\n\u2028\u2029])*\])*\/[gimy]{0,4})/;
+const PARAMS_REGEX = /(\((?:(\s*)([\w$][\w\d$]*)(?:\s*:\s*string)?)?(?:(\s*,\s*)[^)]*\S)?(\s*)\))/;
+const GROUPS_REGEX = /(var|let)\s+([\w$][\w\d$]*)\s*=\s*($groupName:[\w$][\w\d$]*)\s*\[\s*(\d+)\s*\]\s*;(?:\s*(?:var|let)\s+[\w$][\w\d$]*\s*=\s*($groupName)\s*\[\s*\d+\s*\]\s*;)*/;
+const ENUM_REGEX = /(const\s+)?enum\s+([\w$][\w\d$]*)\s*\{[^}]*\}/;
 
 export function process(path: string, skipWrite = false): string | string[] {
     path = Path.resolve(path);
@@ -99,10 +99,10 @@ export function process(path: string, skipWrite = false): string | string[] {
                 matcherCommentRegex,
                 {
                     regexes: [
-                        regexLiteralRegex,
-                        paramsRegex,
-                        groupsRegex,
-                        enumRegex
+                        REGEX_LITERAL_REGEX,
+                        PARAMS_REGEX,
+                        GROUPS_REGEX,
+                        ENUM_REGEX
                     ],
                     or: true
                 }
