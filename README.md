@@ -19,7 +19,7 @@ exports.options = {
     operation: 'combine',
     target: 'target.js', // support *.ts file, too
     global: true,
-    regexs: [
+    regexes: [
 		/</,
 		[
 			/($term:\w+)/,
@@ -35,12 +35,12 @@ exports.options = {
 Create a `target.js` and mark related code with `/* /$test/ */` (`$` followed by the name you configured in options file).
 
 ```typescript
-var testRegex = /* /$test/ */ /./;
+let testRegex = /* /$test/ */ /./;
 
-var groups = testRegex.exec('<abc123>');
+let groups = testRegex.exec('<abc123>');
 
 /* /$test/ */
-var text = groups[0];
+let text = groups[0];
 
 '<def456>'.replace(testRegex, function /* /$test/ */ (text) {
 	return text;
@@ -52,13 +52,13 @@ var text = groups[0];
 Create a task and run it.
 
 ```javascript
-var Gulp = require('gulp');
-var RegexTools = require('regex-tools');
+let Gulp = require('gulp');
+let RegexTools = require('regex-tools');
 
-var glob = require('glob');
+let glob = require('glob');
 
 Gulp.task('update-regex', function () {
-    var optionsFiles = glob.sync('*-regex.rx');
+    let optionsFiles = glob.sync('*-regex.rx');
 
     optionsFiles.forEach(function (path) {
         RegexTools.process(path);
@@ -69,13 +69,13 @@ Gulp.task('update-regex', function () {
 After that, `target.js` should look like:
 
 ```javascript
-var testRegex = /* /$test/ */ /<(\w+)\d*>/g;
+let testRegex = /* /$test/ */ /<(\w+)\d*>/g;
 
-var groups = testRegex.exec('<abc123>');
+let groups = testRegex.exec('<abc123>');
 
 /* /$test/ */
-var text = groups[0];
-var term = groups[1];
+let text = groups[0];
+let term = groups[1];
 
 '<def456>'.replace(testRegex, function /* /$test/ */(text, term) {
 	return text;
@@ -101,11 +101,11 @@ interface RxOptions {
     global?: boolean;
     multiline?: boolean;
     ignoreCase?: boolean;
-    regexs: NestedRegexs;
+    regexes: NestedRegexes;
 }
 
 interface RxModule {
-    options: RxOptions|RxOptions[];
+    options: RxOptions | RxOptions[];
 }
 
 interface NestedRegexOptions {
@@ -117,13 +117,13 @@ interface NestedRegexOptions {
     capture?: boolean;
 	/** ?, *, +, *?, +?, {1}, {1,}, {1,2} */
     repeat?: string;
-    regexs?: RegExp|NestedRegexArray|NestedRegexOptions;
+    regexes: RegExp | NestedRegexArray | NestedRegexOptions;
 }
 
 interface NestedRegexArray
-    extends Array<RegExp|NestedRegexArray|NestedRegexOptions> { }
+    extends Array<RegExp | NestedRegexArray | NestedRegexOptions> { }
 
-type NestedRegexs = NestedRegexArray|NestedRegexOptions;
+type NestedRegexes = NestedRegexArray | NestedRegexOptions;
 ```
 
 ## Back Reference Tracking
@@ -137,7 +137,7 @@ exports.options = {
     name: 'test',
     operation: 'combine',
     target: 'target.js',
-    regexs: [
+    regexes: [
 		/(distraction)/,
         /(["'])\1/
 	]
@@ -155,7 +155,7 @@ exports.options = {
     name: 'test',
     operation: 'combine',
     target: 'target.js',
-    regexs: [
+    regexes: [
 		/($quote:["'])/,
         /.*?/,
         /($quote)/

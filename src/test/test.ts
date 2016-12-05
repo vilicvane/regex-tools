@@ -1,25 +1,18 @@
-﻿/// <reference path="../typings/node/node.d.ts" />
-/// <reference path="../typings/mocha/mocha.d.ts" />
-/// <reference path="../typings/chai/chai.d.ts" />
-/// <reference path="../typings/lang.d.ts" />
-
-require('source-map-support').install();
-
 import { expect, assert } from 'chai';
 
-import RegexTools = require('../bld/index');
+import * as RegexTools from '../';
 
 interface CombineTestCase {
-    regexs: RegexTools.NestedRegexs,
+    regexes: RegexTools.NestedRegexes;
     expect: RegExp;
 }
 
-var caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
+let caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
     "(?:...) wrapping": {
         "should not wrap root |": [
             {
-                regexs: {
-                    regexs: [
+                regexes: {
+                    regexes: [
                         /abc/,
                         /def/
                     ],
@@ -30,10 +23,10 @@ var caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
         ],
         "should wrap combined regex that has | if its upper has no |": [
             {
-                regexs: [
+                regexes: [
                     /biu/,
                     {
-                        regexs: [
+                        regexes: [
                             /abc/,
                             /def/
                         ],
@@ -46,11 +39,11 @@ var caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
         ],
         "should not wrap combined regex that has | if its upper has |": [
             {
-                regexs: {
-                    regexs: [
+                regexes: {
+                    regexes: [
                         /biu/,
                         {
-                            regexs: [
+                            regexes: [
                                 /abc/,
                                 /def/
                             ],
@@ -65,10 +58,10 @@ var caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
         ],
         "should not wrap combined regex that has | if it's already been wrapped": [
             {
-                regexs: [
+                regexes: [
                     /biu/,
                     {
-                        regexs: [
+                        regexes: [
                             /abc/,
                             /def/
                         ],
@@ -80,10 +73,10 @@ var caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
                 expect: /biu(abc|def)pia/
             },
             {
-                regexs: [
+                regexes: [
                     /biu/,
                     {
-                        regexs: [
+                        regexes: [
                             /(abc|def)/
                         ],
                         or: true
@@ -95,14 +88,14 @@ var caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
         ],
         "should wrap or not wrap combined regex that has | based on conditions": [
             {
-                regexs: [
+                regexes: [
                     /biu/,
                     {
-                        regexs: [
+                        regexes: [
                             /abc/,
                             /def/,
                             {
-                                regexs: [
+                                regexes: [
                                     /ghi/,
                                     /jkl/
                                 ],
@@ -118,7 +111,7 @@ var caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
         ],
         "should wrap single regex that has root | and its upper has no |": [
             {
-                regexs: [
+                regexes: [
                     /biu/,
                     /abc|def/,
                     /pia/
@@ -128,7 +121,7 @@ var caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
         ],
         "should not wrap single regex that has root | but its upper has no |": [
             {
-                regexs: [
+                regexes: [
                     /biu/,
                     /abc|def/,
                     /pia/
@@ -138,8 +131,8 @@ var caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
         ],
         "should wrap regex that has repeat pattern": [
             {
-                regexs: {
-                    regexs: [
+                regexes: {
+                    regexes: [
                         /biu/,
                         /pia/
                     ],
@@ -152,13 +145,13 @@ var caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
     "group capturing": {
         "should capture group that has name option": [
             {
-                regexs: {
+                regexes: {
                     name: 'abc',
-                    regexs: [
+                    regexes: [
                         /abc/,
                         /def/,
                         {
-                            regexs: [
+                            regexes: [
                                 /ghi/,
                                 /jkl/
                             ],
@@ -169,10 +162,10 @@ var caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
                 expect: /(abcdef(?:ghi|jkl))/
             },
             {
-                regexs: [
+                regexes: [
                     {
                         name: 'abc',
-                        regexs: /def/
+                        regexes: /def/
                     }
                 ],
                 expect: /(def)/
@@ -180,12 +173,12 @@ var caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
         ],
         "should capture group that has capture option true": [
             {
-                regexs: {
-                    regexs: [
+                regexes: {
+                    regexes: [
                         /abc/,
                         /def/,
                         {
-                            regexs: [
+                            regexes: [
                                 /ghi/,
                                 /jkl/
                             ],
@@ -197,9 +190,9 @@ var caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
                 expect: /(abcdef(?:ghi|jkl))/
             },
             {
-                regexs: [
+                regexes: [
                     {
-                        regexs: /def/,
+                        regexes: /def/,
                         capture: true
                     }
                 ],
@@ -210,7 +203,7 @@ var caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
     "group matching": {
         "should increase back reference number if it has other groups captured before": [
             {
-                regexs: [
+                regexes: [
                     /a($name:b)c(def)/,
                     /([abc])\1/
                 ],
@@ -219,17 +212,17 @@ var caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
         ],
         "should handle back reference by named group properly": [
             {
-                regexs: [
+                regexes: [
                     /a($name:b)c(def)/,
                     /([abc])($name)/
                 ],
                 expect: /a(b)c(def)([abc])\1/
             },
             {
-                regexs: [
+                regexes: [
                     /a($name:b)c(def)/,
                     {
-                        regexs: [
+                        regexes: [
                             /xxx/,
                             /yyy/,
                             [
@@ -245,17 +238,17 @@ var caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
         ],
         "should handle back reference number that's greater than 9": [
             {
-                regexs: [
+                regexes: [
                     /()()/,
                     /()()()()()()()()()()(...)\11/,
                 ],
                 expect: /()()()()()()()()()()()()(...)\13/
             },
             {
-                regexs: [
+                regexes: [
                     /()()()()()()()()()()($name:...)/,
                     {
-                        regexs: [
+                        regexes: [
                             /abc/,
                             /($name)/
                         ],
@@ -265,10 +258,10 @@ var caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
                 expect: /()()()()()()()()()()(...)(?:abc|\11)/
             },
             {
-                regexs: [
+                regexes: [
                     /()()()()()()()()()()($name:...)/,
                     {
-                        regexs: [
+                        regexes: [
                             /abc/,
                             /($name)123/
                         ],
@@ -281,21 +274,18 @@ var caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
     }
 };
 
-Object
-    .keys(caseCategoryMap)
-    .forEach(caseCategoryName => {
-        describe(caseCategoryName, () => {
-            var caseCategory = caseCategoryMap[caseCategoryName];
-            Object
-                .keys(caseCategoryMap[caseCategoryName])
-                .forEach(caseName => {
-                    it(caseName, () => {
-                        var testCases = caseCategory[caseName];
-                        testCases.forEach(testCase => {
-                            var result = RegexTools.combine(testCase.regexs);
-                            expect(result.combined).to.equal(testCase.expect.source);
-                        });
-                    });
-                });
-        });
+for (let caseCategoryName of Object.keys(caseCategoryMap)) {
+    describe(caseCategoryName, () => {
+        let caseCategory = caseCategoryMap[caseCategoryName];
+        for (let caseName of Object.keys(caseCategory)) {
+            it(caseName, () => {
+                for (let testCase of caseCategory[caseName]) {
+                    RegexTools
+                        .combine(testCase.regexes)
+                        .combined
+                        .should.equal(testCase.expect.source);
+                }
+            });
+        }
     });
+}

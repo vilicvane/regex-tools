@@ -1,10 +1,13 @@
 {
   "name": "regex-tools",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Tools for managing long regular expressions.",
   "main": "bld/index.js",
+  "typings": "bld/index.d.ts",
   "scripts": {
-    "test": "./node_modules/.bin/mocha"
+    "tsc": "tsc",
+    "build": "npm run tsc",
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -17,8 +20,13 @@
   },
   "homepage": "https://github.com/vilic/regex-tools",
   "devDependencies": {
+    "@types/chai": "^3.4.34",
+    "@types/mocha": "^2.2.33",
+    "@types/node": "0.0.2",
     "chai": "^2.3.0",
-    "mocha": "^2.2.5",
-    "source-map-support": "^0.3.2"
+    "mocha": "^2.5.3",
+    "node": "0.0.0",
+    "source-map-support": "^0.3.3",
+    "typescript": "^2.0.10"
   }
 }

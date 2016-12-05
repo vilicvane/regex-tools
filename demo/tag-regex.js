@@ -1,23 +1,25 @@
-﻿var tagOpen = /</;
-var tagName = /($tag:[a-z][^\s/>]*)/;
+﻿'use strict';
 
-var spaces = /\s+/;
-var optionalSpaces = /\s*/;
+let tagOpen = /</;
+let tagName = /($tag:[a-z][^\s/>]*)/;
 
-var attributeName = /[^=\s]+/;
-var equalSign = /=/;
-var quotedValue = /($quote:["'])(?:(?!($quote))[\s\S])*($quote)/;
-var unquotedValue = /\S+/;
+let spaces = /\s+/;
+let optionalSpaces = /\s*/;
 
-var attribute = [
+let attributeName = /[^=\s]+/;
+let equalSign = /=/;
+let quotedValue = /($quote:["'])(?:(?!($quote))[\s\S])*($quote)/;
+let unquotedValue = /\S+/;
+
+let attribute = [
     attributeName,
     {
-        regexs: [
+        regexes: [
             optionalSpaces,
             equalSign,
             optionalSpaces,
             {
-                regexs: [
+                regexes: [
                     quotedValue,
                     unquotedValue
                 ],
@@ -28,13 +30,13 @@ var attribute = [
     }
 ];
 
-var tagClose = /\/?>/;
+let tagClose = /\/?>/;
 
-var tag = [
+let tag = [
     tagOpen,
     tagName,
     {
-        regexs: [
+        regexes: [
             spaces,
             attribute
         ],
@@ -49,5 +51,5 @@ exports.options = {
     operation: 'combine',
     target: 'tag.js',
     global: true,
-    regexs: tag
+    regexes: tag
 };

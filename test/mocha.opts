@@ -1,0 +1,4 @@
+--require ./test/mocha
+--recursive
+
+bld/test

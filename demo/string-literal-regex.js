@@ -1,38 +1,40 @@
 ﻿/**
  * This is a sample of a regular expression that matches string literal (ES5).
- * by VILIC VANE
+ * https://github.com/vilic/regex-tools
  */
 
-var quote = /($~quote:["'])/;
-var matchQuote = /($quote)/;
+'use strict';
 
-var lineTerminator = /[\r\n\u2028\u2029]/;
+let quote = /($~quote:["'])/;
+let matchQuote = /($quote)/;
 
-var lineTerminatorSequence = /\r?\n|\r(?!\n)|[\u2028\u2029]/;
+let lineTerminator = /[\r\n\u2028\u2029]/;
 
-var singleEscapeChar = /['"\\bfnrtv]/;
-var escapeChar = /['"\\bfnrtv\dxu]/;
-var nonEscapeChar = /[^'"\\bfnrtv\dxu\r\n\u2028\u2029]/;
+let lineTerminatorSequence = /\r?\n|\r(?!\n)|[\u2028\u2029]/;
 
-var hexEscapeSequence = /x[\da-fA-F]{2}/;
-var unicodeEscapeSequence = /u[\da-fA-F]{4}/;
+let singleEscapeChar = /['"\\bfnrtv]/;
+let escapeChar = /['"\\bfnrtv\dxu]/;
+let nonEscapeChar = /[^'"\\bfnrtv\dxu\r\n\u2028\u2029]/;
 
-var zeroNotFollowedByDegit = /0(?!\d)/;
+let hexEscapeSequence = /x[\da-fA-F]{2}/;
+let unicodeEscapeSequence = /u[\da-fA-F]{4}/;
 
-var charEscapeSequence = {
-    regexs: [
+let zeroNotFollowedByDigit = /0(?!\d)/;
+
+let charEscapeSequence = {
+    regexes: [
         singleEscapeChar,
         nonEscapeChar
     ],
     or: true
 };
 
-var slashEscapeSequence = [
+let slashEscapeSequence = [
     /\\/, 
     {
-        regexs: [
+        regexes: [
             charEscapeSequence,
-            zeroNotFollowedByDegit,
+            zeroNotFollowedByDigit,
             hexEscapeSequence,
             unicodeEscapeSequence
         ],
@@ -40,12 +42,12 @@ var slashEscapeSequence = [
     }
 ];
 
-var lineContinuation = /\\(?:\r?\n|\r(?!\n)|[\u2028\u2029])/;
+let lineContinuation = /\\(?:\r?\n|\r(?!\n)|[\u2028\u2029])/;
 
-var unescapedStringChar = /(?!($quote)|[\\\r\n\u2028\u2029])[\s\S]/;
+let unescapedStringChar = /(?!($quote)|[\\\r\n\u2028\u2029])[\s\S]/;
 
-var optionalStringChars = {
-    regexs: [
+let optionalStringChars = {
+    regexes: [
         unescapedStringChar,
         slashEscapeSequence,
         lineContinuation
@@ -54,7 +56,7 @@ var optionalStringChars = {
     repeat: '*'
 };
 
-var stringLiteral = [
+let stringLiteral = [
     quote,
     optionalStringChars,
     matchQuote
@@ -65,5 +67,5 @@ exports.options = {
     operation: 'combine',
     target: 'string-literal.js',
     global: true,
-    regexs: stringLiteral
+    regexes: stringLiteral
 };

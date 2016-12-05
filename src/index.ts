@@ -1,16 +1,14 @@
-﻿/**
+﻿/*!
  * Regular Expression Tools
  * https://github.com/vilic/regex-tools
- *
- * by VILIC VANE
- * MIT License
  */
 
 import * as Path from 'path';
 import * as FS from 'fs';
-import combine, { CombinedResult, NestedRegexs } from './combine';
 
-export { default as combine, NestedRegexs } from './combine';
+import combine, { CombinedResult, NestedRegexes } from './combine';
+
+export { default as combine, NestedRegexes } from './combine';
 
 interface RxOptions {
     name: string;
@@ -19,11 +17,11 @@ interface RxOptions {
     global?: boolean;
     multiline?: boolean;
     ignoreCase?: boolean;
-    regexs: NestedRegexs;
+    regexes: NestedRegexes;
 }
 
 interface RxModule {
-    options: RxOptions|RxOptions[];
+    options: RxOptions | RxOptions[];
 }
 
 interface OutputCache {
@@ -41,20 +39,19 @@ const paramsRegex = /(\((?:(\s*)([\w$][\w\d$]*)(?:\s*:\s*string)?)?(?:(\s*,\s*)[
 const groupsRegex = /(var|let)\s+([\w$][\w\d$]*)\s*=\s*($groupName:[\w$][\w\d$]*)\s*\[\s*(\d+)\s*\]\s*;(?:\s*(?:var|let)\s+[\w$][\w\d$]*\s*=\s*($groupName)\s*\[\s*\d+\s*\]\s*;)*/;
 const enumRegex = /(const\s+)?enum\s+([\w$][\w\d$]*)\s*\{[^}]*\}/;
 
-export function process(path: string, skipWrite = false): string|string[] {
+export function process(path: string, skipWrite = false): string | string[] {
     path = Path.resolve(path);
     let dir = Path.dirname(path);
 
     let rxModule: RxModule = require(path);
 
     let rxOptions = rxModule.options;
-    let isOptionsArray = rxOptions instanceof Array;
-    let optionGroups = isOptionsArray ? <RxOptions[]>rxOptions : [<RxOptions>rxOptions];
+    let optionGroups = rxOptions instanceof Array ? rxOptions : [rxOptions];
 
     let cacheMap: Dictionary<OutputCache> = {};
     let targets: string[] = [];
 
-    optionGroups.forEach(options => {
+    for (let options of optionGroups) {
         let {
             name,
             target,
@@ -62,7 +59,7 @@ export function process(path: string, skipWrite = false): string|string[] {
             global,
             ignoreCase,
             multiline,
-            regexs
+            regexes
         } = options;
 
         target = Path.resolve(dir, target);
@@ -89,10 +86,10 @@ export function process(path: string, skipWrite = false): string|string[] {
 
         switch (operation) {
             case 'combine':
-                result = combine(regexs);
+                result = combine(regexes);
                 break;
             default:
-                return;
+                continue;
         }
 
         let matcherCommentRegex = new RegExp(`([ \\t]*)(/\\*\\s*/\\$${name}/\\s*\\*/\\s*)`);
@@ -101,7 +98,7 @@ export function process(path: string, skipWrite = false): string|string[] {
             combine([
                 matcherCommentRegex,
                 {
-                    regexs: [
+                    regexes: [
                         regexLiteralRegex,
                         paramsRegex,
                         groupsRegex,
@@ -151,11 +148,11 @@ export function process(path: string, skipWrite = false): string|string[] {
                 }${whitespacesAfterParams})`;
             } else if (groupDeclarationsKeyword) {
                 return `${lineIndent}${prefix}${result.getGroupAliasDeclarationsSnippet({
-                    useLet: groupDeclarationsKeyword == 'let',
+                    useLet: groupDeclarationsKeyword === 'let',
                     arrayName: groupArrayName,
                     newLine,
                     lineIndent,
-                    matchName: firstGroupIndex == '0' ? firstGroupName : undefined
+                    matchName: firstGroupIndex === '0' ? firstGroupName : undefined
                 })}`;
             } else if (enumName) {
                 return `${lineIndent}${prefix}${result.getEnumDeclaration({
@@ -170,16 +167,16 @@ export function process(path: string, skipWrite = false): string|string[] {
             }
         });
 
-        if (updatedText != text) {
+        if (updatedText !== text) {
             cache.text = updatedText;
         }
-    });
+    }
     
     if (!skipWrite) {
         for (let path of Object.keys(cacheMap)) {
             let cache = cacheMap[path];
 
-            if (cache.text != cache.original) {
+            if (cache.text !== cache.original) {
                 FS.writeFileSync(path, cache.text);
             }
         }
@@ -187,14 +184,14 @@ export function process(path: string, skipWrite = false): string|string[] {
 
     let updatedTexts = targets.map(target => cacheMap[target].text);
 
-    return isOptionsArray ? updatedTexts : updatedTexts[0];
+    return rxOptions instanceof Array ? updatedTexts : updatedTexts[0];
 }
 
 function detectTextStyle(text: string): TextStyle {
     let indentSpaces: string[] = text.match(/^[ \t]+/gm) || [];
     let tabCount = 0;
 
-    let lastIndentLength: number;
+    let lastIndentLength: number | undefined;
 
     let lengthToCount: number[] = [];
 
@@ -204,7 +201,7 @@ function detectTextStyle(text: string): TextStyle {
         } else {
             let length = indentSpace.length;
 
-            if (lastIndentLength != undefined && length > lastIndentLength) {
+            if (lastIndentLength !== undefined && length > lastIndentLength) {
                 let indentDiff = length - lastIndentLength;
                 lengthToCount[indentDiff] = (lengthToCount[indentDiff] || 0) + 1;
             }
