@@ -26,26 +26,9 @@ export class CombinedResult {
         public groupNameHideMap: Dictionary<void>
     ) { }
     
-    getRegexLiteral({
-        global = false,
-        ignoreCase = false,
-        multiline = false
-    } = <any>{}): string {
+    getRegexLiteral(flags?: string): string {
         let literal = `/${this.combined.replace(/\\.|(\/)/g, (m: string, g1: string) => g1 ? '\\/' : m) }/`;
-
-        if (global) {
-            literal += 'g';
-        }
-
-        if (ignoreCase) {
-            literal += 'i';
-        }
-
-        if (multiline) {
-            literal += 'm';
-        }
-
-        return literal;
+        return literal + (flags || '');
     }
 
     getParametersSnippet({
@@ -164,7 +147,7 @@ export default function combine(regexes: NestedRegexes): CombinedResult {
             capture = !!name || !!regexes.capture;
             repeat = regexes.repeat || '';
 
-            if (!/^(?:\?\??|[+*]\??|\{\d+\}|\{\d+,\d*\}\??)?$/.test(repeat)) {
+            if (!/^(?:\?\??|[+*]\??|\{\d+,\d*\}\??|\{\d+\})?$/.test(repeat)) {
                 throw new Error(`Invalid repeat option "${repeat}"`);
             }
         }

@@ -13,10 +13,8 @@ export { default as combine, NestedRegexes } from './combine';
 interface RxOptions {
     name: string;
     target: string;
-    operation: string;
-    global?: boolean;
-    multiline?: boolean;
-    ignoreCase?: boolean;
+    operation?: string;
+    flags?: string;
     regexes: NestedRegexes;
 }
 
@@ -36,7 +34,7 @@ interface TextStyle {
 
 const REGEX_LITERAL_REGEX = /(\/(?:[^\r\n\u2028\u2029*/\[\\]|\\[^\r\n\u2028\u2029]|\[(?:[^\r\n\u2028\u2029\]\\]|\\[^\r\n\u2028\u2029])*\])(?:[^\r\n\u2028\u2029/\[\\]|\\[^\r\n\u2028\u2029]|\[(?:[^\r\n\u2028\u2029\]\\]|\\[^\r\n\u2028\u2029])*\])*\/[gimy]{0,4})/;
 const PARAMS_REGEX = /(\((?:(\s*)([\w$][\w\d$]*)(?:\s*:\s*string)?)?(?:(\s*,\s*)[^)]*\S)?(\s*)\))/;
-const GROUPS_REGEX = /(var|let)\s+([\w$][\w\d$]*)\s*=\s*($groupName:[\w$][\w\d$]*)\s*\[\s*(\d+)\s*\]\s*;(?:\s*(?:var|let)\s+[\w$][\w\d$]*\s*=\s*($groupName)\s*\[\s*\d+\s*\]\s*;)*/;
+const GROUPS_REGEX = /(var|let|const)\s+([\w$][\w\d$]*)\s*=\s*($groupName:[\w$][\w\d$]*)\s*\[\s*(\d+)\s*\]\s*;(?:\s*(?:var|let)\s+[\w$][\w\d$]*\s*=\s*($groupName)\s*\[\s*\d+\s*\]\s*;)*/;
 const ENUM_REGEX = /(const\s+)?enum\s+([\w$][\w\d$]*)\s*\{[^}]*\}/;
 
 export function process(path: string, skipWrite = false): string | string[] {
@@ -56,9 +54,7 @@ export function process(path: string, skipWrite = false): string | string[] {
             name,
             target,
             operation,
-            global,
-            ignoreCase,
-            multiline,
+            flags,
             regexes
         } = options;
 
@@ -85,6 +81,7 @@ export function process(path: string, skipWrite = false): string | string[] {
         let result: CombinedResult;
 
         switch (operation) {
+            case undefined:
             case 'combine':
                 result = combine(regexes);
                 break;
@@ -106,9 +103,7 @@ export function process(path: string, skipWrite = false): string | string[] {
                     ],
                     or: true
                 }
-            ]).getRegexLiteral({
-                global: true
-            })
+            ]).getRegexLiteral('g')
         ) as RegExp;
 
         let updatedText = text.replace(matcherRegex, (
@@ -129,11 +124,7 @@ export function process(path: string, skipWrite = false): string | string[] {
             enumName: string
         ) => {
             if (literal) {
-                return `${lineIndent}${prefix}${result.getRegexLiteral({
-                    global,
-                    ignoreCase,
-                    multiline
-                })}`;
+                return `${lineIndent}${prefix}${result.getRegexLiteral(flags)}`;
             } else if (params) {
                 let separator = whitespacesBeforeParams ?
                     ',' + whitespacesBeforeParams :
