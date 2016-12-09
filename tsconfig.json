@@ -15,6 +15,7 @@
         "newLine": "LF"
     },
     "exclude": [
+        "bld",
         "test",
         "node_modules"
     ]
