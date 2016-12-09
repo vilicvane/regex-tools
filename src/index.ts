@@ -75,7 +75,7 @@ export function process(path: string, skipWrite = false): string | string[] {
                 text
             };
         }
-        
+
         let { newLine, indent } = detectTextStyle(text);
 
         let result: CombinedResult;
@@ -129,7 +129,7 @@ export function process(path: string, skipWrite = false): string | string[] {
                 let separator = whitespacesBeforeParams ?
                     ',' + whitespacesBeforeParams :
                     separatorBetweenParams || ', ';
-                
+
                 return `${lineIndent}${prefix}(${whitespacesBeforeParams}${
                     result.getParametersSnippet({
                         typed: /\.ts$/i.test(target),
@@ -162,7 +162,7 @@ export function process(path: string, skipWrite = false): string | string[] {
             cache.text = updatedText;
         }
     }
-    
+
     if (!skipWrite) {
         for (let path of Object.keys(cacheMap)) {
             let cache = cacheMap[path];
@@ -197,7 +197,7 @@ function detectTextStyle(text: string): TextStyle {
                 lengthToCount[indentDiff] = (lengthToCount[indentDiff] || 0) + 1;
             }
 
-            lastIndentLength = length; 
+            lastIndentLength = length;
         }
     }
 

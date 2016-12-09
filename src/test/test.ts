@@ -271,6 +271,54 @@ let caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
                 expect: /()()()()()()()()()()(...)(?:abc|(?:\11)123)/
             }
         ]
+    },
+    "lookahead": {
+        "should handle lookahead": [
+            {
+                regexes: {
+                    regexes: [
+                        /abc/,
+                        /def/
+                    ],
+                    lookahead: true
+                },
+                expect: /(?=abcdef)/
+            },
+            {
+                regexes: {
+                    regexes: [
+                        /abc/,
+                        /def/
+                    ],
+                    lookahead: '='
+                },
+                expect: /(?=abcdef)/
+            }
+        ],
+        "should handle negative lookahead": [
+            {
+                regexes: {
+                    regexes: [
+                        /abc/,
+                        /def/
+                    ],
+                    lookahead: '!'
+                },
+                expect: /(?!abcdef)/
+            }
+        ],
+        "should handle lookahead that captures": [
+            {
+                regexes: [
+                    {
+                        name: 'abc',
+                        regexes: /def/,
+                        lookahead: '='
+                    }
+                ],
+                expect: /(?=(def))/
+            }
+        ]
     }
 };
 

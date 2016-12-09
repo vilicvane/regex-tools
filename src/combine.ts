@@ -3,10 +3,13 @@
  * https://github.com/vilic/regex-tools
  */
 
+export type Lookahead = boolean | '=' | '!';
+
 export interface NestedRegexOptions {
     name?: string;
     or?: boolean;
     capture?: boolean;
+    lookahead?: Lookahead;
     repeat?: string;
     regexes: RegExp | NestedRegexArray | NestedRegexOptions;
 }
@@ -25,7 +28,7 @@ export class CombinedResult {
         public groupNameToIndex: Dictionary<number>,
         public groupNameHideMap: Dictionary<void>
     ) { }
-    
+
     getRegexLiteral(flags?: string): string {
         let literal = `/${this.combined.replace(/\\.|(\/)/g, (m: string, g1: string) => g1 ? '\\/' : m) }/`;
         return literal + (flags || '');
@@ -37,14 +40,14 @@ export class CombinedResult {
         separator = ', '
     }): string {
         let names = [matchName].concat(this.groupNames);
-        
+
         if (typed) {
             return names.map(name => name + ': string').join(separator);
         } else {
             return names.join(separator);
         }
     }
-    
+
     getGroupAliasDeclarationsSnippet({
         arrayName = 'groups',
         useLet = true,
@@ -59,7 +62,7 @@ export class CombinedResult {
         }
 
         let hideMap = this.groupNameHideMap;
-        
+
         for (let [index, name] of this.groupNames.entries()) {
             if (!(name in hideMap)) {
                 lines.push(`${useLet ? 'let' : 'var'} ${name} = ${arrayName}[${index + 1}];`);
@@ -77,7 +80,7 @@ export class CombinedResult {
         indent = '    '
     } = <any>{}): string {
         let lines: string[] = [];
-        
+
         let hideMap = this.groupNameHideMap;
         let skipped = true; // skipped 0 as it starts from 1.
 
@@ -91,7 +94,7 @@ export class CombinedResult {
                 lines.push(`${name}`);
             }
         }
-        
+
         return (
             `${useConst ? 'const ' : ''}enum ${name} {${newLine}` +
             `${lineIndent + indent}${lines.join(',' + newLine + lineIndent + indent) }${newLine}` +
@@ -114,11 +117,11 @@ export default function combine(regexes: NestedRegexes): CombinedResult {
     for (let i = 0; i < groupCount; i++) {
         groupNames.push('g' + (i + 1));
     }
-    
+
     for (let name of Object.keys(groupNameToIndex)) {
         groupNames[groupNameToIndex[name] - 1] = name.replace(/-([a-z])/ig, (m: string, g1: string) => g1.toUpperCase());
     }
-    
+
     return new CombinedResult(combined, groupNames, groupNameToIndex, groupNameHideMap);
 
     function processRegexes(regexes: NestedRegexes, upperOr: boolean): string {
@@ -126,12 +129,14 @@ export default function combine(regexes: NestedRegexes): CombinedResult {
         let regexArray: NestedRegexArray;
         let or: boolean;
         let capture: boolean;
+        let lookahead: Lookahead;
         let repeat: string;
-        
+
         if (regexes instanceof Array) {
             regexArray = regexes;
             or = false;
             capture = false;
+            lookahead = false;
             repeat = '';
         } else {
             name = regexes.name;
@@ -142,9 +147,10 @@ export default function combine(regexes: NestedRegexes): CombinedResult {
             } else {
                 regexArray = [optionRegexes];
             }
-            
+
             or = !!regexes.or;
             capture = !!name || !!regexes.capture;
+            lookahead = regexes.lookahead === true ? '=' : regexes.lookahead || false;
             repeat = regexes.repeat || '';
 
             if (!/^(?:\?\??|[+*]\??|\{\d+,\d*\}\??|\{\d+\})?$/.test(repeat)) {
@@ -163,7 +169,7 @@ export default function combine(regexes: NestedRegexes): CombinedResult {
                 groupNameToIndex[name] = groupCount;
             }
         }
-        
+
         let combined = regexArray
             .map(regex => {
                 if (regex instanceof RegExp) {
@@ -173,13 +179,19 @@ export default function combine(regexes: NestedRegexes): CombinedResult {
                 }
             })
             .join(or ? '|' : '');
-        
+
         combined = capture ?
             `(${combined})` :
             repeat || (!upperOr && or && regexArray.length > 1) ?
                 `(?:${combined})` : combined;
-        
-        return combined + repeat;
+
+        combined += repeat;
+
+        if (lookahead) {
+            combined = `(?${lookahead}${combined})`;
+        }
+
+        return combined;
     }
 
     /**
@@ -239,7 +251,7 @@ export default function combine(regexes: NestedRegexes): CombinedResult {
                         while (groupName in groupNameToIndex) {
                             groupName = originalGroupName + suffixNumber++;
                         }
-                        
+
                         if (toHide) {
                             groupNameHideMap[groupName] = undefined;
                         }

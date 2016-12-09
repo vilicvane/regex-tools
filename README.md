@@ -108,6 +108,8 @@ interface RxModule {
     options: RxOptions | RxOptions[];
 }
 
+type Lookahead = boolean | '=' | '!';
+
 interface NestedRegexOptions {
 	/** captured group name. */
     name?: string;
@@ -115,6 +117,8 @@ interface NestedRegexOptions {
     or?: boolean;
 	/** whether to capture, default to false if `name` is not provided, otherwise true. */
     capture?: boolean;
+    /** lookahead, `true` or `"="` for positive and `"!"` for negative. */
+    lookahead?: Lookahead;
 	/** ?, *, +, *?, +?, {1}, {1,}, {1,2} */
     repeat?: string;
     regexes: RegExp | NestedRegexArray | NestedRegexOptions;
