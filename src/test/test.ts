@@ -140,6 +140,75 @@ let caseCategoryMap: Dictionary<Dictionary<CombineTestCase[]>> = {
                 },
                 expect: /(?:biupia)+/
             }
+        ],
+        "should not wrap zero-length pattern": [
+            {
+                regexes: [
+                    /biu/,
+                    /(?:)/
+                ],
+                expect: /biu/
+            },
+            {
+                regexes: [],
+                expect: /(?:)/
+            }
+        ],
+        "should not wrap one-char repeat pattern": [
+            {
+                regexes: {
+                    regexes: [
+                        /[biu]/
+                    ],
+                    repeat: '+'
+                },
+                expect: /[biu]+/
+            },
+            {
+                regexes: {
+                    regexes: [
+                        /[bi[\]u]/
+                    ],
+                    repeat: '+'
+                },
+                expect: /[bi[\]u]+/
+            },
+            {
+                regexes: {
+                    regexes: [
+                        /!/
+                    ],
+                    repeat: '+'
+                },
+                expect: /!+/
+            },
+            {
+                regexes: {
+                    regexes: [
+                        /\n/
+                    ],
+                    repeat: '+'
+                },
+                expect: /\n+/
+            },
+            {
+                regexes: {
+                    regexes: [
+                        /\u0000/
+                    ],
+                    repeat: '+'
+                },
+                expect: /\u0000+/
+            },
+            {
+                regexes: {
+                    regexes: [
+                        /\x00/
+                    ],
+                    repeat: '+'
+                },
+                expect: /\x00+/
+            }
         ]
     },
     "group capturing": {

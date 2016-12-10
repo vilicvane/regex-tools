@@ -110,7 +110,7 @@ export default function combine(regexes: NestedRegexes): CombinedResult {
 
     let regexIndex = 0;
 
-    let combined = processRegexes(regexes, true);
+    let combined = processRegexes(regexes, true) || '(?:)';
 
     let groupNames: string[] = [];
 
@@ -158,10 +158,6 @@ export default function combine(regexes: NestedRegexes): CombinedResult {
             }
         }
 
-        if (!regexArray.length) {
-            return '(?:)';
-        }
-
         if (capture) {
             groupCount++;
 
@@ -175,14 +171,15 @@ export default function combine(regexes: NestedRegexes): CombinedResult {
                 if (regex instanceof RegExp) {
                     return processPartialRegex(regex, or);
                 } else {
-                    return processRegexes(regex as NestedRegexes, or);
+                    return processRegexes(regex, or);
                 }
             })
             .join(or ? '|' : '');
 
         combined = capture ?
             `(${combined})` :
-            repeat || (!upperOr && or && regexArray.length > 1) ?
+            (repeat && !/^(?:\\u.{4}|\\x.{2}|\\.|\[(?:\\.|[^\]])+\]|.)$/.test(combined)) ||
+            (!upperOr && or && regexArray.length > 1) ?
                 `(?:${combined})` : combined;
 
         combined += repeat;
@@ -201,6 +198,10 @@ export default function combine(regexes: NestedRegexes): CombinedResult {
         regexIndex++;
 
         let regexStr = regex.source;
+
+        if (regexStr === '(?:)') {
+            regexStr = '';
+        }
 
         // syntax test
         try {

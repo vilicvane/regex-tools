@@ -1,0 +1,10 @@
+/.vscode/
+
+/demo/
+/bld/test/
+/src/
+/test/
+
+/tsconfig.json
+
+.*

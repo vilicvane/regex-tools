@@ -1,6 +1,6 @@
 {
   "name": "regex-tools",
-  "version": "0.3.0",
+  "version": "0.3.2",
   "description": "Tools for managing long regular expressions.",
   "main": "bld/index.js",
   "typings": "bld/index.d.ts",
