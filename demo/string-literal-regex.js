@@ -66,6 +66,6 @@ exports.options = {
     name: 'stringLiteral',
     operation: 'combine',
     target: 'string-literal.js',
-    global: true,
+    flags: 'g',
     regexes: stringLiteral
 };

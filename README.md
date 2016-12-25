@@ -18,7 +18,7 @@ exports.options = {
     name: 'test',
     operation: 'combine',
     target: 'target.js', // support *.ts file, too
-    global: true,
+    flags: 'g',
     regexes: [
 		/</,
 		[
@@ -97,10 +97,8 @@ interface RxOptions {
 	/** target source file. */
     target: string;
 	/** only "combine" so far. */
-    operation: string;
-    global?: boolean;
-    multiline?: boolean;
-    ignoreCase?: boolean;
+    operation?: string;
+    flags?: string;
     regexes: NestedRegexes;
 }
 

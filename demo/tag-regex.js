@@ -50,6 +50,6 @@ exports.options = {
     name: 'tag',
     operation: 'combine',
     target: 'tag.js',
-    global: true,
+    flags: 'g',
     regexes: tag
 };
