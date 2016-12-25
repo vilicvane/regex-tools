@@ -1,7 +1,14 @@
 {
   "name": "regex-tools",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Tools for managing long regular expressions.",
+  "keywords": [
+    "regular expression",
+    "regexp",
+    "regex",
+    "generate",
+    "maintain"
+  ],
   "main": "bld/index.js",
   "typings": "bld/index.d.ts",
   "scripts": {
