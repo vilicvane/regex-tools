@@ -1,6 +1,6 @@
 {
   "name": "regex-tools",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "Tools for managing long regular expressions.",
   "keywords": [
     "regular expression",
