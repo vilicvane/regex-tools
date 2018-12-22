@@ -3,14 +3,12 @@ import * as Path from 'path';
 
 import {Dict} from 'tslang';
 
-import combine, {CombinedResult, NestedRegexes} from './combine';
-
-export {default as combine, NestedRegexes} from './combine';
+import {CombinedResult, NestedRegexes, combine} from './combine';
 
 export interface RegexToolsOptions {
   name: string;
   target: string;
-  operation?: string;
+  operation: 'combine';
   flags?: string;
   regexes: NestedRegexes;
 }
@@ -35,7 +33,9 @@ export function process(path: string, skipWrite = false): string | string[] {
   let dir = Path.dirname(path);
 
   let module = require(path);
-  let regexToolsOptions = module.default || module.options || module;
+
+  let regexToolsOptions: RegexToolsOptions | RegexToolsOptions[] =
+    module.default || module.options || module;
 
   let optionGroups = Array.isArray(regexToolsOptions)
     ? regexToolsOptions

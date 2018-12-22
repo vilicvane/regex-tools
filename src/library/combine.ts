@@ -114,7 +114,7 @@ export class CombinedResult {
   }
 }
 
-export default function combine(regexes: NestedRegexes): CombinedResult {
+export function combine(regexes: NestedRegexes): CombinedResult {
   let groupCount = 0;
   let groupNameToIndex: Dict<number> = {};
   let groupNameHideMap: Dict<void> = {};
