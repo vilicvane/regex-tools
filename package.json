@@ -9,13 +9,6 @@
     "generate",
     "maintain"
   ],
-  "main": "bld/index.js",
-  "typings": "bld/index.d.ts",
-  "scripts": {
-    "tsc": "tsc",
-    "build": "npm run tsc",
-    "test": "mocha"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/vilic/regex-tools"
@@ -26,14 +19,35 @@
     "url": "https://github.com/vilic/regex-tools/issues"
   },
   "homepage": "https://github.com/vilic/regex-tools",
+  "scripts": {
+    "build": "rimraf bld && tsc --build src/tsconfig.all.json",
+    "lint:library": "tslint -p src/library",
+    "lint:test": "tslint -p src/test",
+    "test:library": "yarn lint:library && mocha",
+    "test:test": "yarn lint:test",
+    "test": "yarn test:library && yarn test:test"
+  },
+  "main": "bld/library/index.js",
+  "types": "bld/library/index.d.ts",
+  "files": [
+    "src/library/**/*.ts",
+    "bld/library"
+  ],
+  "dependencies": {
+    "tslang": "^0.1.11"
+  },
   "devDependencies": {
-    "@types/chai": "^3.4.34",
-    "@types/mocha": "^2.2.33",
-    "@types/node": "0.0.2",
-    "chai": "^2.3.0",
-    "mocha": "^2.5.3",
-    "node": "0.0.0",
-    "source-map-support": "^0.3.3",
-    "typescript": "^2.1.4"
+    "@magicspace/configs": "^0.1.46",
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.5",
+    "@types/node": "^10.12.18",
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
+    "prettier": "^1.15.3",
+    "rimraf": "^2.6.2",
+    "source-map-support": "^0.5.9",
+    "tslint": "^5.12.0",
+    "tslint-language-service": "^0.9.9",
+    "typescript": "^3.2.2"
   }
 }

@@ -1,0 +1,16 @@
+{
+  "extends": "@magicspace/configs/tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+
+    "types": ["mocha", "chai"],
+
+    "rootDir": ".",
+    "outDir": "../../bld/test"
+  },
+  "references": [
+    {
+      "path": "../library"
+    }
+  ]
+}

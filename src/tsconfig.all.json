@@ -1,0 +1,4 @@
+{
+  "include": [],
+  "references": [{"path": "library"}, {"path": "test"}]
+}

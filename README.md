@@ -15,18 +15,18 @@ Create a `test-regex.js` file and write something like this.
 
 ```javascript
 exports.options = {
-    name: 'test',
-    operation: 'combine',
-    target: 'target.js', // support *.ts file, too
-    flags: 'g',
-    regexes: [
-		/</,
-		[
-			/($term:\w+)/,
-			/\d*/
-		],
-		/>/
-	]
+  name: 'test',
+  operation: 'combine',
+  target: 'target.js', // support *.ts file, too
+  flags: 'g',
+  regexes: [
+    /</,
+    [
+      /($term:\w+)/,
+      /\d*/
+    ],
+    />/
+  ]
 };
 ```
 
@@ -43,7 +43,7 @@ let groups = testRegex.exec('<abc123>');
 let text = groups[0];
 
 '<def456>'.replace(testRegex, function /* /$test/ */ (text) {
-	return text;
+  return text;
 });
 ```
 
@@ -58,11 +58,11 @@ let RegexTools = require('regex-tools');
 let glob = require('glob');
 
 Gulp.task('update-regex', function () {
-    let optionsFiles = glob.sync('*-regex.rx');
+  let optionsFiles = glob.sync('*-regex.rx');
 
-    optionsFiles.forEach(function (path) {
-        RegexTools.process(path);
-    });
+  optionsFiles.forEach(function (path) {
+    RegexTools.process(path);
+  });
 });
 ```
 
@@ -78,7 +78,7 @@ let text = groups[0];
 let term = groups[1];
 
 '<def456>'.replace(testRegex, function /* /$test/ */(text, term) {
-	return text;
+  return text;
 });
 ```
 
@@ -92,38 +92,38 @@ And here's related type declarations:
 
 ```typescript
 interface RxOptions {
-	/** name that will match related tag in target source file. */
-    name: string;
-	/** target source file. */
-    target: string;
-	/** only "combine" so far. */
-    operation?: string;
-    flags?: string;
-    regexes: NestedRegexes;
+  /** name that will match related tag in target source file. */
+  name: string;
+  /** target source file. */
+  target: string;
+  /** only "combine" so far. */
+  operation?: string;
+  flags?: string;
+  regexes: NestedRegexes;
 }
 
 interface RxModule {
-    options: RxOptions | RxOptions[];
+  options: RxOptions | RxOptions[];
 }
 
 type Lookahead = boolean | '=' | '!';
 
 interface NestedRegexOptions {
-	/** captured group name. */
-    name?: string;
-	/** whether to use `|`, default to false. */
-    or?: boolean;
-	/** whether to capture, default to false if `name` is not provided, otherwise true. */
-    capture?: boolean;
-    /** lookahead, `true` or `"="` for positive and `"!"` for negative. */
-    lookahead?: Lookahead;
-	/** ?, *, +, *?, +?, {1}, {1,}, {1,2} */
-    repeat?: string;
-    regexes: RegExp | NestedRegexArray | NestedRegexOptions;
+  /** captured group name. */
+  name?: string;
+  /** whether to use `|`, default to false. */
+  or?: boolean;
+  /** whether to capture, default to false if `name` is not provided, otherwise true. */
+  capture?: boolean;
+  /** lookahead, `true` or `"="` for positive and `"!"` for negative. */
+  lookahead?: Lookahead;
+  /** ?, *, +, *?, +?, {1}, {1,}, {1,2} */
+  repeat?: string;
+  regexes: RegExp | NestedRegexArray | NestedRegexOptions;
 }
 
 interface NestedRegexArray
-    extends Array<RegExp | NestedRegexArray | NestedRegexOptions> { }
+  extends Array<RegExp | NestedRegexArray | NestedRegexOptions> { }
 
 type NestedRegexes = NestedRegexArray | NestedRegexOptions;
 ```
@@ -136,13 +136,13 @@ The options below will result in `/(distraction)(["'])\2/`.
 
 ```js
 exports.options = {
-    name: 'test',
-    operation: 'combine',
-    target: 'target.js',
-    regexes: [
-		/(distraction)/,
-        /(["'])\1/
-	]
+  name: 'test',
+  operation: 'combine',
+  target: 'target.js',
+  regexes: [
+    /(distraction)/,
+    /(["'])\1/
+  ]
 };
 ```
 
@@ -154,14 +154,14 @@ Another way to deal with back references is to use named references provided by 
 
 ```js
 exports.options = {
-    name: 'test',
-    operation: 'combine',
-    target: 'target.js',
-    regexes: [
-		/($quote:["'])/,
-        /.*?/,
-        /($quote)/
-	]
+  name: 'test',
+  operation: 'combine',
+  target: 'target.js',
+  regexes: [
+    /($quote:["'])/,
+    /.*?/,
+    /($quote)/
+  ]
 };
 ```
 

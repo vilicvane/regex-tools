@@ -22,24 +22,21 @@ let unicodeEscapeSequence = /u[\da-fA-F]{4}/;
 let zeroNotFollowedByDigit = /0(?!\d)/;
 
 let charEscapeSequence = {
-    regexes: [
-        singleEscapeChar,
-        nonEscapeChar
-    ],
-    or: true
+  regexes: [singleEscapeChar, nonEscapeChar],
+  or: true,
 };
 
 let slashEscapeSequence = [
-    /\\/, 
-    {
-        regexes: [
-            charEscapeSequence,
-            zeroNotFollowedByDigit,
-            hexEscapeSequence,
-            unicodeEscapeSequence
-        ],
-        or: true
-    }
+  /\\/,
+  {
+    regexes: [
+      charEscapeSequence,
+      zeroNotFollowedByDigit,
+      hexEscapeSequence,
+      unicodeEscapeSequence,
+    ],
+    or: true,
+  },
 ];
 
 let lineContinuation = /\\(?:\r?\n|\r(?!\n)|[\u2028\u2029])/;
@@ -47,25 +44,17 @@ let lineContinuation = /\\(?:\r?\n|\r(?!\n)|[\u2028\u2029])/;
 let unescapedStringChar = /(?!($quote)|[\\\r\n\u2028\u2029])[\s\S]/;
 
 let optionalStringChars = {
-    regexes: [
-        unescapedStringChar,
-        slashEscapeSequence,
-        lineContinuation
-    ],
-    or: true,
-    repeat: '*'
+  regexes: [unescapedStringChar, slashEscapeSequence, lineContinuation],
+  or: true,
+  repeat: '*',
 };
 
-let stringLiteral = [
-    quote,
-    optionalStringChars,
-    matchQuote
-];
+let stringLiteral = [quote, optionalStringChars, matchQuote];
 
 exports.options = {
-    name: 'stringLiteral',
-    operation: 'combine',
-    target: 'string-literal.js',
-    flags: 'g',
-    regexes: stringLiteral
+  name: 'stringLiteral',
+  operation: 'combine',
+  target: 'string-literal.js',
+  flags: 'g',
+  regexes: stringLiteral,
 };

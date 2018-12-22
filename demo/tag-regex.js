@@ -12,44 +12,38 @@ let quotedValue = /($quote:["'])(?:(?!($quote))[\s\S])*($quote)/;
 let unquotedValue = /\S+/;
 
 let attribute = [
-    attributeName,
-    {
-        regexes: [
-            optionalSpaces,
-            equalSign,
-            optionalSpaces,
-            {
-                regexes: [
-                    quotedValue,
-                    unquotedValue
-                ],
-                or: true
-            }
-        ],
-        repeat: '?'
-    }
+  attributeName,
+  {
+    regexes: [
+      optionalSpaces,
+      equalSign,
+      optionalSpaces,
+      {
+        regexes: [quotedValue, unquotedValue],
+        or: true,
+      },
+    ],
+    repeat: '?',
+  },
 ];
 
 let tagClose = /\/?>/;
 
 let tag = [
-    tagOpen,
-    tagName,
-    {
-        regexes: [
-            spaces,
-            attribute
-        ],
-        repeat: '*'
-    },
-    optionalSpaces,
-    tagClose
+  tagOpen,
+  tagName,
+  {
+    regexes: [spaces, attribute],
+    repeat: '*',
+  },
+  optionalSpaces,
+  tagClose,
 ];
 
 exports.options = {
-    name: 'tag',
-    operation: 'combine',
-    target: 'tag.js',
-    flags: 'g',
-    regexes: tag
+  name: 'tag',
+  operation: 'combine',
+  target: 'tag.js',
+  flags: 'g',
+  regexes: tag,
 };

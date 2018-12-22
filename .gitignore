@@ -1,6 +1,22 @@
-/.vscode/
+# Installable packages
 
-/node_modules/
-/bld/
+node_modules/
 
-/npm-debug.log
+# Configuration
+
+.config/
+
+# Building artifacts
+
+bld/
+dist/
+.cache/
+*.tgz
+
+# Debugging outputs
+
+*.log
+
+# Testing files
+
+/test.*
