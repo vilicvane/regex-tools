@@ -13,13 +13,14 @@ export interface NestedRegexOptions {
   capture?: boolean;
   lookahead?: Lookahead;
   repeat?: string;
-  regexes: RegExp | NestedRegexArray | NestedRegexOptions;
+  regexes: Regexes;
 }
 
-export interface NestedRegexArray
-  extends Array<RegExp | NestedRegexArray | NestedRegexOptions> {}
+export interface NestedRegexArray extends Array<Regexes> {}
 
 export type NestedRegexes = NestedRegexArray | NestedRegexOptions;
+
+export type Regexes = RegExp | NestedRegexes;
 
 const GROUP_REGEX = /\(\$(~?[\w$][\w\d$]*)(?:(:)(?!\?)|\)(?=(\d)?))|(\(\?)|(\()|(\))|(\|)|(\[)|(\])|\\(\d+)|\\.|./g;
 
