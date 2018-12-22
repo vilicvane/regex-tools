@@ -2,7 +2,7 @@
 
 const Path = require('path');
 
-const RegexTools = require('../bld/index');
+const RegexTools = require('../bld/library');
 
 const names = ['tag', 'string-literal'];
 

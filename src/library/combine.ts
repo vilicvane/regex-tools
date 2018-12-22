@@ -151,7 +151,7 @@ export default function combine(regexes: NestedRegexes): CombinedResult {
     let lookahead: Lookahead;
     let repeat: string;
 
-    if (regexes instanceof Array) {
+    if (Array.isArray(regexes)) {
       regexArray = regexes;
       or = false;
       capture = false;
@@ -161,7 +161,7 @@ export default function combine(regexes: NestedRegexes): CombinedResult {
       name = regexes.name;
       let optionRegexes = regexes.regexes;
 
-      if (optionRegexes instanceof Array) {
+      if (Array.isArray(optionRegexes)) {
         regexArray = optionRegexes;
       } else {
         regexArray = [optionRegexes];

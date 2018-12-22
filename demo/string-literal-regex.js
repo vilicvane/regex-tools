@@ -8,10 +8,6 @@
 let quote = /($~quote:["'])/;
 let matchQuote = /($quote)/;
 
-let lineTerminator = /[\r\n\u2028\u2029]/;
-
-let lineTerminatorSequence = /\r?\n|\r(?!\n)|[\u2028\u2029]/;
-
 let singleEscapeChar = /['"\\bfnrtv]/;
 let escapeChar = /['"\\bfnrtv\dxu]/;
 let nonEscapeChar = /[^'"\\bfnrtv\dxu\r\n\u2028\u2029]/;
@@ -51,7 +47,7 @@ let optionalStringChars = {
 
 let stringLiteral = [quote, optionalStringChars, matchQuote];
 
-exports.options = {
+module.exports = {
   name: 'stringLiteral',
   operation: 'combine',
   target: 'string-literal.js',

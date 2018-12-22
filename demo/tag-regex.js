@@ -40,7 +40,7 @@ let tag = [
   tagClose,
 ];
 
-exports.options = {
+module.exports = {
   name: 'tag',
   operation: 'combine',
   target: 'tag.js',

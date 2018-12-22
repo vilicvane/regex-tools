@@ -19,14 +19,7 @@ exports.options = {
   operation: 'combine',
   target: 'target.js', // support *.ts file, too
   flags: 'g',
-  regexes: [
-    /</,
-    [
-      /($term:\w+)/,
-      /\d*/
-    ],
-    />/
-  ]
+  regexes: [/</, [/($term:\w+)/, /\d*/], />/],
 };
 ```
 
@@ -42,7 +35,7 @@ let groups = testRegex.exec('<abc123>');
 /* /$test/ */
 let text = groups[0];
 
-'<def456>'.replace(testRegex, function /* /$test/ */ (text) {
+'<def456>'.replace(testRegex, function(/* /$test/ */ text) {
   return text;
 });
 ```
@@ -57,10 +50,10 @@ let RegexTools = require('regex-tools');
 
 let glob = require('glob');
 
-Gulp.task('update-regex', function () {
-  let optionsFiles = glob.sync('*-regex.rx');
+Gulp.task('update-regex', function() {
+  let optionsFiles = glob.sync('*-regex.js');
 
-  optionsFiles.forEach(function (path) {
+  optionsFiles.forEach(function(path) {
     RegexTools.process(path);
   });
 });
@@ -77,7 +70,7 @@ let groups = testRegex.exec('<abc123>');
 let text = groups[0];
 let term = groups[1];
 
-'<def456>'.replace(testRegex, function /* /$test/ */(text, term) {
+'<def456>'.replace(testRegex, function(/* /$test/ */ text, term) {
   return text;
 });
 ```
@@ -86,12 +79,12 @@ Problem solved! You may checkout demo for relatively more complex examples.
 
 ## API References
 
-An options file is a node module that exports options. `exports.options` could be either `RxOptions` or `RxOptions[]`.
+An options file is a node module that exports options as default. The exported default value could be either `RegexToolsOptions` or `RegexToolsOptions[]`.
 
 And here's related type declarations:
 
 ```typescript
-interface RxOptions {
+interface RegexToolsOptions {
   /** name that will match related tag in target source file. */
   name: string;
   /** target source file. */
@@ -100,10 +93,6 @@ interface RxOptions {
   operation?: string;
   flags?: string;
   regexes: NestedRegexes;
-}
-
-interface RxModule {
-  options: RxOptions | RxOptions[];
 }
 
 type Lookahead = boolean | '=' | '!';
@@ -123,14 +112,14 @@ interface NestedRegexOptions {
 }
 
 interface NestedRegexArray
-  extends Array<RegExp | NestedRegexArray | NestedRegexOptions> { }
+  extends Array<RegExp | NestedRegexArray | NestedRegexOptions> {}
 
 type NestedRegexes = NestedRegexArray | NestedRegexOptions;
 ```
 
 ## Back Reference Tracking
 
-If you are using back reference, it will keep the index updated. That means you should write back refenrences relative to the current part of regular expression.
+If you are using back reference, it will keep the index updated. That means you should write back references relative to the current part of regular expression.
 
 The options below will result in `/(distraction)(["'])\2/`.
 
@@ -139,10 +128,7 @@ exports.options = {
   name: 'test',
   operation: 'combine',
   target: 'target.js',
-  regexes: [
-    /(distraction)/,
-    /(["'])\1/
-  ]
+  regexes: [/(distraction)/, /(["'])\1/],
 };
 ```
 
@@ -157,11 +143,7 @@ exports.options = {
   name: 'test',
   operation: 'combine',
   target: 'target.js',
-  regexes: [
-    /($quote:["'])/,
-    /.*?/,
-    /($quote)/
-  ]
+  regexes: [/($quote:["'])/, /.*?/, /($quote)/],
 };
 ```
 
